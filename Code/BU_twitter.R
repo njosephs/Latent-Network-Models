@@ -6,8 +6,12 @@ setup_twitter_oauth("kZADq17e01p6ILN0u3vdgU1DH"
 
 # BU ID
 BU <- getUser("BU_Tweets")
+
 # Get BU followers
-followers.BU <- BU$getFollowers(n=NULL)
+# Do not run again (11/14/18)
+# followers.BU <- BU$getFollowers(n=NULL)
+save.image(file = "./Desktop/GitHub/Latent-Twitter-Models/Data/followers.BU.RData")
+
 # Get (public) followers' followers
 followers_public.BU <- sapply(followers.BU, FUN = function(x) {
   follower <- getUser(x)
