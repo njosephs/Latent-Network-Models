@@ -10,9 +10,23 @@
 \maketitle
 
 \section{Introduction}
+\begin{enumerate}
+	\item Our goals 
+\end{enumerate}
 
-\section{Latent Variable Models}
+\section{Data}
+\begin{enumerate}
+	\item How we got the data
+	\item what is the data
+	\item How did we create the network  
+	\begin{enumerate}
+		\item nodes= characters
+		\item edges are interactions, defined by their appearance in the book; weighted by number of interactions
+	\end{enumerate}
+\end{enumerate}
 
+\section{Models}
+\subsection{Latent Network Models}
 \begin{enumerate}
     \item Introduction of network data
     \item Community detection in networks
@@ -20,26 +34,23 @@
     \item Inclusion of observed covariates
 \end{enumerate}
 
-\section{Computational Modeling Approaches}
-
+\subsection{Model Formulation (in our context)}
+$$logit P(Y_ij = 1) = ... $$
 \begin{enumerate}
-    \item Estimation Maximization for latent class modeling
-    \item Markov Chain Monte Carlo methods for latent variable models
+	\item latent variables 
 \end{enumerate}
 
-\section{Data \& Application}
-
+\section{Results}
 \begin{enumerate}
-    \item Data description
-    \item Modeling approaches
     \item Analysis
     \item Results
 \end{enumerate}
 
-\section{Conclusion}
 
+\section{Conclusion}
 \section{References}
 
+\section*{Appendix}
 \appendix 
 
 \section{Estimation Maximization Code}
