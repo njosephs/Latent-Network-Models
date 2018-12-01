@@ -1,6 +1,6 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
-
+\usepackage{indentfirst}
 \usepackage{biblatex}
 \addbibresource{ref.bib}
 
@@ -14,9 +14,13 @@
 \maketitle
 
 \section{Introduction}
-\begin{enumerate}
-	\item Our goals 
-\end{enumerate}
+
+Game of Thrones is a popular HBO TV series adapted from George R.R. Martin's best-selling book series \textit{'A Song of Ice and Fire'}. The medieval fantasy epic describes the stories of two powerful families - kings and queens, knights and renegades, liars and honest men - playing a deadly game for control of the Seven Kingdoms of Westeros, and to sit atop the Iron Throne. Conspiracy and deception, power and exile, blood and tear ran through the plot, sewing together characters with various backgrounds: from royals to peasants, from icy zombies to dragons. As the heart tucking plot develops with each book release, the readers start to wonder where the storyline would lead towards: some may argue by the set up of the theme where the battle of ice and fire shall never die out; others proposed a different view on the analysis of the plot -- using the data extracted from the book to investigate the relations between characters.  \\
+
+After discovering some data on the verses exchanged between the characters from the third book, we start to wonder if we can extract information out of it -- in particular, making inference to identify the character being "good" or "bad". With the questions in mind, we found the paper written by Krivitsky, Handcock, Raftery, and Hoff on \textit{Representing Clustering in Social Networks with Latent Cluster Random Effects Models}. The relationships between characters from the book naturally arises as a network, each person being a node, and the lines they exchange being the vertex. ( We probably want to cooperate Kelly's writing about section 2 here). 
+Once we have established a network based on the characters from the novel, we fit it with a latent network model proposed by Hoff in his paper in Section 4, and analyse the data by using two different numerical schemes: one is through Expectation- Maximization where we treat the of the characters as latent; another is through Markov-Chain-Monte-Carlo where we blah blah blah ( I am not perfectly sure what to fill in here. Help plz!)  \\
+
+(Should we say more about... comparing the results from the previous two methods?) 
 
 \section{Data}
 Due to its global fame, \textit{Game of Thrones}  has been studied in many different contexts, especially in network analysis. Therefore, there are many readily available datasets. In our project, we use the dataset from Beveridge and Shan's \cite{beveridge2016network} article which contains information about characters' interactions in the third book of the series. In this case, an \textit{interaction} occurs if the characters' names appear within fifteen words of one another. This could mean that the characters interacted with each other, conversed with each other, or they were mentioned together by another ends. There is also a column that contains the number of times each pair interacts with one another. Using this dataset, we constructed a weighted network using the number of interactions as weights. Here, the nodes represent the characters and the edges represent the interactions. We use an adjacency matrix, $A$, to represent the network, where the $a_{i,j}$ element represents the number of times the characters interacted with each other. Note that this means if $a_{i.j} = 0$, there are no recorded interactions between character $i$ and $j$, based on how \textit{interactions} is defined. Although the original dataset is intended as a directed network, we treat it as an undirected network in order to simplify our models. 
