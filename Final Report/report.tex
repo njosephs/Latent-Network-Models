@@ -1,8 +1,12 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 
+\usepackage{biblatex}
+\addbibresource{ref.bib}
+
+%\graphicspath{{report_figures/}}
 \title{Computational Techniques in Latent Variable Network Models}
-%\author{}
+\author{Kelly}
 %\date{November 2018}
 
 \begin{document}
@@ -15,15 +19,9 @@
 \end{enumerate}
 
 \section{Data}
-\begin{enumerate}
-	\item How we got the data
-	\item what is the data
-	\item How did we create the network  
-	\begin{enumerate}
-		\item nodes= characters
-		\item edges are interactions, defined by their appearance in the book; weighted by number of interactions
-	\end{enumerate}
-\end{enumerate}
+Due to its global fame, \textit{Game of Thrones}  has been studied in many different contexts, especially in network analysis. Therefore, there are many readily available datasets. In our project, we use the dataset from Beveridge and Shan's \cite{beveridge2016network} article which contains information about characters' interactions in the third book of the series. In this case, an \textit{interaction} occurs if the characters' names appear within fifteen words of one another. This could mean that the characters interacted with each other, conversed with each other, or they were mentioned together by another ends. There is also a column that contains the number of times each pair interacts with one another. Using this dataset, we constructed a weighted network using the number of interactions as weights. Here, the nodes represent the characters and the edges represent the interactions. We use an adjacency matrix, $A$, to represent the network, where the $a_{i,j}$ element represents the number of times the characters interacted with each other. Note that this means if $a_{i.j} = 0$, there are no recorded interactions between character $i$ and $j$, based on how \textit{interactions} is defined. Although the original dataset is intended as a directed network, we treat it as an undirected network in order to simplify our models. 
+
+Our network $G$ contains $N_V(G) = 107$ nodes and $N_E(G) = 352$ edges which means it is quite sparse since it only contains approximately $6.20\%$ of 5,671 ($N_V(G) \choose 2$) possible edges. Figure --include figure-- shows the network described. In order to account for the sparsity of our network, we consider a subnetwork which only contains pairs of characters with at least 75 interactions (maybe even 100?). We chose a cutoff of 75 interactions because we want to focus our analysis on only the main characters. Looking at the distribution of the weighted degree (include pic?), we see that $65.42\%$ of the characters had fewer than 75 interactions. Therefore, it makes sense to use this cutoff to limit our analysis to only the main characters. By doing so, our new network $G'$ contains $N_V(G') = 35$ nodes and $N_E(G') = 140$ edges. Here, we see that the network now contains $23.53\%$ of 595 possible edges which shows an improvement from before. --should we mention that this is not great but we cant limit it too much?-- Our analysis that follows will be done on this subnetwork $G'$. Figure --include figure-- shows this subnetwork $G'$, and indeed, only the main characters are still represented in the network. 
 
 \section{Models}
 \subsection{Latent Network Models}
@@ -49,6 +47,7 @@ $$logit P(Y_ij = 1) = ... $$
 
 \section{Conclusion}
 \section{References}
+\printbibliography
 
 \section*{Appendix}
 \appendix 
