@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{indentfirst}
+\usepackage[linesnumbered,ruled]{algorithm2e}
 \usepackage{biblatex}
 \addbibresource{ref.bib}
 
@@ -33,13 +34,47 @@ After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes an
     \item Inclusion of observed covariates
 \end{enumerate}
 
-\subsection{Model Formulation (in our context)}
-$$logit P(Y_ij = 1) = ... $$
+\subsection{Model Formulation}
+\[ logit P(Y_ij = 1) = ... \]
 \begin{enumerate}
-	\item latent variables 
+	\item latent variables
+	\item model form
+	\item priors
+	\item likelihood
 \end{enumerate}
 
 \section{Computational Methods} \label{Computational Methods}
+
+\subsection{EM}
+
+\begin{algorithm*}
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \underline{LNM EM} $(G)$\;
+    \Input{Graph $G$}
+    \Output{Latent Variables $Z_i$}
+    E\;
+    M\;
+    \caption{EM for latent network model}
+\end{algorithm*}
+
+\subsection{MCMC}
+
+\begin{algorithm*}
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \underline{LNM MCMC} $(G, \textbf{params}, ns)$\;
+    \Input{Graph $G$\\
+    \textbf{params}\\
+    Number of samples $ns$}
+    \Output{Posterior p(\textbf{WHAT})}
+    Initialize \textbf{what}\;
+    \For{$t = 2,\ldots,ns$}
+      {
+      \textbf{sampler}
+      }
+    \caption{Gibbs sampler for latent network model}
+\end{algorithm*}
 
 \section{Results} \label{Results}
 \begin{enumerate}
@@ -49,6 +84,9 @@ $$logit P(Y_ij = 1) = ... $$
 
 
 \section{Conclusion} \label{Conclusion}
+
+book 3 is nice because its midpoint of releases so characters have developed, but what if we perform same analysis for the other books and map a character's goodness across each book
+
 \section{References}
 \printbibliography
 
