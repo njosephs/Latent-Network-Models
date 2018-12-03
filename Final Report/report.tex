@@ -1,6 +1,8 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{amsmath,amsthm,amsfonts}
 \usepackage[linesnumbered,ruled]{algorithm2e}
 \usepackage{biblatex}
 \addbibresource{ref.bib}
@@ -35,7 +37,30 @@ After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes an
 \end{enumerate}
 
 \subsection{Model Formulation}
-\[ logit P(Y_ij = 1) = ... \]
+
+\begin{align}
+\text{logit} \mathbb{P}(Y_{ij} = 1|Z) = ||Z_i - Z_j|| + \epsilon_{ij} 
+\end{align}
+
+\begin{align}
+Z_i &\overset{i.i.d}{\sim}\sum_{g=1}^G \lambda_g\text{MVN}_d(\mu_g,\sigma_g^2I_d)\\
+\mathbb{P}(\vec{\lambda})&\propto 1\\
+\vec{\mu}&\sim\text{MVN}_d(0,I)\\
+\vec{\sigma^2}&\sim\chi_d^2
+\end{align}
+
+Below we write $\mathcal{L}_1$, $\ell_1$ are likelihood methods for the unweighted network model. If we wish to include the weights into our modeling procedure, we construct a second log-likelihood $\ell_2$. 
+
+
+\begin{align}
+\mathcal{L}_1(\mathbf{Z}; \mathbf{Y}) &= \prod_{i<j} \left\{\text{logit}^{-1}(||Z_i - Z_j||)\right\}^{Y_{ij}}\left\{1-\text{logit}^{-1}(||Z_i - Z_j||)\right\}^{1-Y_{ij}}\\
+\ell_1(\mathbf{Z};\mathbf{Y}) &=  \sum_{i<j}Y_{ij}||Z_i - Z_j|| - \log\left(1 + \exp\left(||Z_i - Z_j||\right)\right)\\ 
+\ell_2(\mathbf{Z}; \mathbf{Y}) &= \sum_{i<j}y_{ij}(||Z_i - Z_j||) - \exp(||Z_i - Z_j||) - \log(y_{ij})\\
+\end{align}
+
+
+
+
 \begin{enumerate}
 	\item latent variables
 	\item model form
