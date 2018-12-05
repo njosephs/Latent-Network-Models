@@ -30,7 +30,7 @@ After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes an
 \section{Models} \label{Models}
 
 \subsection{Latent Network Models}\label{LNM}
-Review of Hoff's papers:
+Review of Hoff's papers (need's citations):
 \begin{enumerate}
     \item Introduction of network data
     \item Community detection in networks
@@ -38,7 +38,7 @@ Review of Hoff's papers:
     \item Inclusion of observed covariates
 \end{enumerate}
 
-\subsection{Model Formulation}
+\subsection{Model Formulation}\label{Model Formulation}
 
 Following the layout in Section \ref{LNM}, we model the presence of an edge given our latent variables as
 \[\text{logit } \mathbb{P}(Y_{ij} = 1|Z) = ||Z_i - Z_j|| + \epsilon_{ij}\]
@@ -48,31 +48,37 @@ Putting priors over $\mu_g$ and  $\sigma_g^2$, as well as introducing the latent
 
 \begin{align*}
 Y_{ij} | Z_i, Z_j &\sim \text{Bern}\Big[\text{logit}^{-1}\big(\Vert Z_i - Z_j \Vert\big)\Big] \\
-Z_i | K_i = k &\overset{iid}\sim N(\mu_k, \sigma_k^2 I_2) \\
+Z_i | K_i = k_i &\overset{iid}\sim N(\mu_{k_i}, \sigma_{k_i}^2 I_2) \\
 K &\overset{iid}\sim \text{Multinoulli}\big(G, \frac{1}{G}\big) \\
-\mu_k &\overset{iid}\sim \text{MVN}_2(0, I_2) \\
-\sigma_k^2 &\overset{iid}\sim \chi^2
+\mu_{k_i} &\overset{iid}\sim \text{MVN}_2(0, I_2) \\
+\sigma_{k_i}^2 &\overset{iid}\sim \chi^2_2
 \end{align*}
 With these, we can write the complete likelihood and log-likelihood, which we will use in both our fitting procedures. We let $\theta = (\mu, \sigma^2, K)$ denote our nuisance parameters. Then, we have
 
 \begin{align*}
-\mathcal{L}(Z, \theta; Y) &= \prod_{i<j}\mathbb{P}(Y_{ij} | Z_i, Z_j) \mathbb{P}(Z_i | K_i, \mu_k, \sigma_k^2) \mathbb{P}(Z_j | K_j, \mu_j, \sigma_j^2) \mathbb{P}(K_i)\mathbb{P}(\mu_k)\mathbb{P}(\sigma_k^2)\mathbb{P}(K_j)\mathbb{P}(\mu_j)\mathbb{P}(\sigma_j^2) \\
+\mathcal{L}(Z, \theta; Y) &= \prod_{i<j}\mathbb{P}(Y_{ij} | Z_i, Z_j) \mathbb{P}(Z_i | K_i, \mu_{k_i}, \sigma_{k_i}^2) \mathbb{P}(Z_j | K_j, \mu_{k_j}, \sigma_j^2) \mathbb{P}(K_i)\mathbb{P}(\mu_{k_i})\mathbb{P}(\sigma_{k_i}^2)\mathbb{P}(K_j)\mathbb{P}(\mu_{k_j})\mathbb{P}(\sigma_{k_j}^2) \\
 &= \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
-&\ \ \ \ \ \ \ \ \times \phi(\mu_k, \sigma_k^2)\times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2} \\
-&\ \ \ \ \ \ \ \ \times \phi(\mu_j, \sigma_j^2)\times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2}
+&\ \ \ \ \ \ \ \ \times \phi(\mu_{k_i}, \sigma_{k_i}^2)\times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2} \\
+&\ \ \ \ \ \ \ \ \times \phi(\mu_{k_j}, \sigma_{k_j}^2)\times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2} \\
+&\propto \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
+&\ \ \ \ \ \ \ \ \times \frac{1}{\sigma_{k_i}}\exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^2\Big\}\frac{1}{\sigma_{k_j}}\exp\Big\{-\frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^2\Big\} \\
+&\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\Big\}\exp\Big\{-\frac{1}{2}\mu_{k_j}^T\mu_{k_j}\Big\} \\
+&\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{\sigma_{k_i}^2}{2}\Big\}\exp\Big\{-\frac{\sigma_{k_j}^2}{2}\Big\}
 \end{align*}
-Hence the log-likelihood, substituting the forms of the given densities, is
+Hence the log-likelihood, up to a constant, is
 
 \begin{align*}
-l(Z, \theta ; Y) &= \sum_{i<j} \Big\{Y_{ij} \Vert Z_i - Z_j \Vert - \log \big(1 + \exp\big(\Vert Z_i - Z_j\Vert\big)\big)\Big\} \\
-&\ \ \ \ \ \ \ \ - \frac{1}{2}\log 2\pi - \frac{1}{2}\log \sigma_k^2 - \frac{(Z_i - \mu_k)^2}{2\sigma_k^2}  - \frac{1}{2}\log 2\pi - \frac{1}{2}\log \sigma_j^2 - \frac{(Z_j - \mu_j)^2}{2\sigma_j^2} \\
-&\ \ \ \ \ \ \ \ - \log G - \log G \\
-&\ \ \ \ \ \ \ \ - \frac{1}{2} \log \big(2\pi\det(I_2)\big) - \frac{1}{2}(\mu_k^TI_2^{-1}\mu_k) - \frac{1}{2} \log \big(2\pi\det(I_2)\big) - \frac{1}{2}(\mu_j^TI_2^{-1}\mu_j) \\
-&\ \ \ \ \ \ \ \ - \frac{1}{2}\log 2 - \log \Gamma(\frac{1}{2}) - \frac{1}{2}\log \sigma_k^2 - \frac{\sigma_k^2}{2} - \frac{1}{2}\log 2 - \log \Gamma(\frac{1}{2}) - \frac{1}{2}\log \sigma_j^2 - \frac{\sigma_j^2}{2} \\
-&\overset{c}= \text{simplified up to constant}
+l(Z, \theta ; Y) &\overset{c}= \sum_{i<j} \Big\{Y_{ij} \Vert Z_i - Z_j \Vert - \log \big(1 + \exp\big(\Vert Z_i - Z_j\Vert\big)\big)\Big\} \\
+&\ \ \ \ \ \ \ \ - \log \sigma_{k_i} - \frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^2 - \log \sigma_{k_j} - \frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^2 \\
+&\ \ \ \ \ \ \ \ -\frac{1}{2}\Big(\mu_{k_i}^T\mu_{k_i} - \mu_{k_j}^T\mu_{k_j} - \sigma_{k_i}^2 -\sigma_{k_j}^2\Big)
 \end{align*}
 
 
+%&\ \ \ \ \ \ \ \ - \frac{1}{2}\log 2\pi - \frac{1}{2}\log \sigma_k^2 - \frac{(Z_i - \mu_k)^2}{2\sigma_k^2}  - \frac{1}{2}\log 2\pi - \frac{1}{2}\log \sigma_j^2 - \frac{(Z_j - \mu_j)^2}{2\sigma_j^2} \\
+%&\ \ \ \ \ \ \ \ - \log G - \log G \\
+%&\ \ \ \ \ \ \ \ - \frac{1}{2} \log \big(2\pi\det(I_2)\big) - \frac{1}{2}(\mu_k^TI_2^{-1}\mu_k) - \frac{1}{2} \log \big(2\pi\det(I_2)\big) - \frac{1}{2}(\mu_j^TI_2^{-1}\mu_j) \\
+%&\ \ \ \ \ \ \ \ - \frac{1}{2}\log 2 - \log \Gamma(\frac{1}{2}) - \frac{1}{2}\log \sigma_k^2 - \frac{\sigma_k^2}{2} - \frac{1}{2}\log 2 - \log \Gamma(\frac{1}{2}) - \frac{1}{2}\log \sigma_j^2 - \frac{\sigma_j^2}{2} \\
+%&\overset{c}= \text{simplified up to constant}
 
 %Below we write $\mathcal{L}_1$, $\ell_1$ are likelihood methods for the unweighted network model. If we wish to include the weights into our modeling procedure, we construct a second log-likelihood $\ell_2$. 
 %\begin{align}
@@ -85,18 +91,52 @@ l(Z, \theta ; Y) &= \sum_{i<j} \Big\{Y_{ij} \Vert Z_i - Z_j \Vert - \log \big(1 
 
 \subsection{EM}
 
+One method for finding the latent variables $Z_i$ for each node is the Expectation-Maximization (EM) algorithm. Unfortunately, the log-likelihood given in Section \ref{Model Formulation} cannot easily be handled with EM. In particular, finding $\mathbb{E}\Big[l(Z, \theta ; Y)\Big]_{Z_i, Z_j | Y, \theta}$ is difficult. One solution is to sample and use Monte Carlo estimation in the E-step, then proceed with the M-step. This is the so-called Monte Carlo EM (MCEM) method.
+
+Instead, we simplify our model to make EM more analytically tractable. In Section \ref{MCMC}, we fit the full model using MCMC. Here, we fit the simplified model using latent distances $d_{ij} \equiv \Vert Z_i - Z_j \Vert$
+
+\begin{align*}
+Y_{ij} | Z_i, Z_j &\sim \text{Bern}\Big[\text{logit}^{-1}\big(d_{ij}\big)\Big] \\
+d_{ij} &\sim \text{Beta}(\alpha, \beta)
+\end{align*}
+Then
+
+\begin{align*}
+\mathcal{L}(d_{ij}, \alpha, \beta; Y) &= \prod_{i<j}\Big(\text{logit}^{-1}\big(d_{ij})\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(d_{ij})\Big)^{1 - Y_{ij}} \\
+&\ \ \ \ \ \ \ \ \times \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}d_{ij}^{\alpha - 1}(1-d_{ij})^{\beta - 1} \\
+l(d_{ij}, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{d_{ij}}{1 - d_{ij}}\Big) + (1-d_{ij})  \\
+&\ \ \ \ \ \ \ \ + \log \Gamma(\alpha + \beta) - \log \Gamma(\alpha) - \log \Gamma(\beta) \\
+&\ \ \ \ \ \ \ \ + (\alpha - 1)\log d_{ij} + (\beta - 1)\log(1 - d_{ij})
+\end{align*}
+
+%Gamma
+%\begin{align*}
+%\mathcal{L}(d_{ij}, \alpha, \beta; Y) &= \prod_{i<j}\Big(\text{logit}^{-1}\big(d_{ij})\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(d_{ij})\Big)^{1 - Y_{ij}} \\
+%&\ \ \ \ \ \ \ \ \times \frac{\beta^\alpha}{\Gamma(\alpha)}d_{ij}^{\alpha - 1}\exp\big\{-\beta d_{ij}\big\} \\
+%l(d_{ij}, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}d_{ij} - \log \big(1 + \exp\big(d_{ij}\big)\big) \\
+%&\ \ \ \ \ \ \ \ + \alpha \log \beta - \log \Gamma(\alpha) + (\alpha - 1) \log d_{ij} - \beta d_{ij}
+%\end{align*}
+
 \begin{algorithm*}
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
     \underline{LNM EM} $(G)$\;
     \Input{Graph $G$}
-    \Output{Latent Variables $Z_i$}
+    \Output{Latent Distances $d_{ij}$}
     E\;
     M\;
-    \caption{EM for latent network model}
+    \caption{EM for simplified latent network model}
 \end{algorithm*}
 
-\subsection{MCMC}
+\subsubsection{E-Step}
+
+do E-step
+
+\subsubsection{M-Step}
+
+do M-step
+
+\subsection{MCMC}\label{MCMC}
 
 \begin{algorithm*}
     \SetKwInOut{Input}{Input}
