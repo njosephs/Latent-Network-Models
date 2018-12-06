@@ -134,7 +134,7 @@ Therefore, we have
 where $\Psi$ is the digamma function. Thus
 \begin{align*}
 Q\big(\theta; \theta^{(t)}\big) &\equiv \mathbb{E}_{d | Y, \theta^{(t)}} \Big[l(d; Y, \theta)\Big] \\
-&= \sum_{i<j} (Y_{ij} + \alpha - 1) \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} [d_{ij}] - (Y_{ij} - \beta + 1) \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big] \\
+&= \sum_{i<j} (Y_{ij} + \alpha - 1) \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} [\log  d_{ij}] - (Y_{ij} - \beta + 1) \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1-d_{ij})\big] \\
 &\ \ \ \ \ \ \ \ - \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} [d_{ij}] + 1 + \log \Gamma(\alpha + \beta) - \log \Gamma(\alpha) - \log \Gamma(\beta) \tag{E}
 \end{align*}
 
@@ -143,10 +143,10 @@ Q\big(\theta; \theta^{(t)}\big) &\equiv \mathbb{E}_{d | Y, \theta^{(t)}} \Big[l(
 For the M-step, we simply take the partial derivatives of $Q\big(\theta; \theta^{(t)}\big)$ with respect to $\alpha$ and $\beta$. Note that we will need an approximate solution in both cases since the digamma function prevents us from finding an analytic solution. For this, we use the Newton-Raphson Method.
 
 \begin{align*}
-\frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \alpha^{(t)}} &= \sum_{i<j} \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) + \Gamma(\alpha^{(t+1)}) = 0 \\
-&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)} = -\frac{\sum_{i<n}\mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big]}{{n \choose 2}} \tag{M1} \\
-\frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \beta^{(t)}} &= \sum_{i<j} \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log 1- d_{ij}\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) + \Gamma(\beta^{(t+1)}) = 0 \\
-&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\alpha^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[1 - \log d_{ij}\big]}{{n \choose 2}} \tag{M2} \\
+\frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \alpha^{(t)}} &= \sum_{i<j} \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)})= 0 \\
+&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big]}{{n \choose 2}} \tag{M1} \\
+\frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \beta^{(t)}} &= \sum_{i<j} \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- d_{ij})\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = 0 \\
+&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1 - d_{ij})\big]}{{n \choose 2}} \tag{M2} \\
 \end{align*}
 
 \subsubsection{Pseudocode}
