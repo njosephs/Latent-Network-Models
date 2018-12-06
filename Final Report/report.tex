@@ -50,28 +50,29 @@ Putting priors over $\mu_g$ and  $\sigma_g^2$, as well as introducing the latent
 \begin{align*}
 Y_{ij} | Z_i, Z_j &\sim \text{Bern}\Big[\text{logit}^{-1}\big(\Vert Z_i - Z_j \Vert\big)\Big] \\
 Z_i | K_i = k_i &\overset{iid}\sim N(\mu_{k_i}, \sigma_{k_i}^2 I_2) \\
-K &\overset{iid}\sim \text{Multinoulli}\big(G, \frac{1}{G}\big) \\
+K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda_g\big) \\
+\lambda_g &\overset{iid}\sim \frac{1}{G} \\
 \mu_{k_i} &\overset{iid}\sim \text{MVN}_2(0, I_2) \\
 \sigma_{k_i}^2 &\overset{iid}\sim \chi^2_2
 \end{align*}
 With these, we can write the complete likelihood and log-likelihood, which we will use in both our fitting procedures. We let $\theta = (\mu, \sigma^2, K)$ denote our nuisance parameters. Then, we have
 
 \begin{align*}
-\mathcal{L}(Z, \theta; Y) &= \prod_{i<j}\mathbb{P}(Y_{ij} | Z_i, Z_j) \mathbb{P}(Z_i | K_i, \mu_{k_i}, \sigma_{k_i}^2) \mathbb{P}(Z_j | K_j, \mu_{k_j}, \sigma_j^2) \mathbb{P}(K_i)\mathbb{P}(\mu_{k_i})\mathbb{P}(\sigma_{k_i}^2)\mathbb{P}(K_j)\mathbb{P}(\mu_{k_j})\mathbb{P}(\sigma_{k_j}^2) \\
+\mathcal{L}(Z, \theta; Y) &= \prod_{i<j}\mathbb{P}(Y_{ij} | Z_i, Z_j) \mathbb{P}(Z_i | K_i, \mu_{k_i}, \sigma_{k_i}^2) \mathbb{P}(Z_j | K_j, \mu_{k_j}, \sigma_j^2) \\ 
+&\ \ \ \ \ \ \ \ \times  \mathbb{P}(K_i | \lambda_i) \mathbb{P}(\lambda_i)\mathbb{P}(\mu_{k_i})\mathbb{P}(\sigma_{k_i}^2)\mathbb{P}(K_j)\mathbb{P}(\mu_{k_j})\mathbb{P}(\sigma_{k_j}^2) \\
 &= \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
-&\ \ \ \ \ \ \ \ \times \phi(\mu_{k_i}, \sigma_{k_i}^2)\times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2} \\
-&\ \ \ \ \ \ \ \ \times \phi(\mu_{k_j}, \sigma_{k_j}^2)\times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2} \\
+&\ \ \ \ \ \ \ \ \times \phi(\mu_{k_i}, \sigma_{k_i}^2)\times \lambda_i \times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2} \\
+&\ \ \ \ \ \ \ \ \times \phi(\mu_{k_j}, \sigma_{k_j}^2)\times  \lambda_j \times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2} \\
 &\propto \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
 &\ \ \ \ \ \ \ \ \times \frac{1}{\sigma_{k_i}}\exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\} \enspace \frac{1}{\sigma_{k_j}}\exp\Big\{-\frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^T (Z_j - \mu_{k_j})\Big\} \\
-&\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\Big\}\exp\Big\{-\frac{1}{2}\mu_{k_j}^T\mu_{k_j}\Big\} \\
-&\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{\sigma_{k_i}^2}{2}\Big\}\exp\Big\{-\frac{\sigma_{k_j}^2}{2}\Big\}
+&\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\Big\}\exp\Big\{-\frac{1}{2}\mu_{k_j}^T\mu_{k_j}\Big\}  \times \exp\Big\{-\frac{\sigma_{k_i}^2}{2}\Big\}\exp\Big\{-\frac{\sigma_{k_j}^2}{2}\Big\} \times \lambda_i \times \lambda_j
 \end{align*}
 Hence the log-likelihood, up to a constant, is
 
 \begin{align*}
 l(Z, \theta ; Y) &\overset{c}= \sum_{i<j} \Big\{Y_{ij} \Vert Z_i - Z_j \Vert - \log \big(1 + \exp\big(\Vert Z_i - Z_j\Vert\big)\big)\Big\} \\
-&\ \ \ \ \ \ \ \ - \log \sigma_{k_i} - \frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) - \log \sigma_{k_j} - \frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^T (Z_j - \mu_{k_j}) \\
-&\ \ \ \ \ \ \ \ -\frac{1}{2}\Big(\mu_{k_i}^T\mu_{k_i} + \mu_{k_j}^T\mu_{k_j} + \sigma_{k_i}^2 + \sigma_{k_j}^2\Big)
+&\ \ \ \ \ \ \ \ - \log \sigma_{k_i} - \frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) - \log \sigma_{k_j} - \frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^T (Z_j - \mu_{k_j})  \\
+&\ \ \ \ \ \ \ \ -\frac{1}{2}\Big(\mu_{k_i}^T\mu_{k_i} + \mu_{k_j}^T\mu_{k_j} + \sigma_{k_i}^2 + \sigma_{k_j}^2\Big)  + \log \lambda_i + \log \lambda_j
 \end{align*}
 
 
