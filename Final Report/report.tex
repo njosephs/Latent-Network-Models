@@ -62,7 +62,7 @@ With these, we can write the complete likelihood and log-likelihood, which we wi
 &\ \ \ \ \ \ \ \ \times \phi(\mu_{k_i}, \sigma_{k_i}^2)\times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2} \\
 &\ \ \ \ \ \ \ \ \times \phi(\mu_{k_j}, \sigma_{k_j}^2)\times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\chi^2_2} \\
 &\propto \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
-&\ \ \ \ \ \ \ \ \times \frac{1}{\sigma_{k_i}}\exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^2\Big\}\frac{1}{\sigma_{k_j}}\exp\Big\{-\frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^2\Big\} \\
+&\ \ \ \ \ \ \ \ \times \frac{1}{\sigma_{k_i}}\exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\} \enspace \frac{1}{\sigma_{k_j}}\exp\Big\{-\frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^T (Z_j - \mu_{k_j})\Big\} \\
 &\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\Big\}\exp\Big\{-\frac{1}{2}\mu_{k_j}^T\mu_{k_j}\Big\} \\
 &\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{\sigma_{k_i}^2}{2}\Big\}\exp\Big\{-\frac{\sigma_{k_j}^2}{2}\Big\}
 \end{align*}
@@ -70,8 +70,8 @@ Hence the log-likelihood, up to a constant, is
 
 \begin{align*}
 l(Z, \theta ; Y) &\overset{c}= \sum_{i<j} \Big\{Y_{ij} \Vert Z_i - Z_j \Vert - \log \big(1 + \exp\big(\Vert Z_i - Z_j\Vert\big)\big)\Big\} \\
-&\ \ \ \ \ \ \ \ - \log \sigma_{k_i} - \frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^2 - \log \sigma_{k_j} - \frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^2 \\
-&\ \ \ \ \ \ \ \ -\frac{1}{2}\Big(\mu_{k_i}^T\mu_{k_i} - \mu_{k_j}^T\mu_{k_j} - \sigma_{k_i}^2 -\sigma_{k_j}^2\Big)
+&\ \ \ \ \ \ \ \ - \log \sigma_{k_i} - \frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) - \log \sigma_{k_j} - \frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^T (Z_j - \mu_{k_j}) \\
+&\ \ \ \ \ \ \ \ -\frac{1}{2}\Big(\mu_{k_i}^T\mu_{k_i} + \mu_{k_j}^T\mu_{k_j} + \sigma_{k_i}^2 + \sigma_{k_j}^2\Big)
 \end{align*}
 
 
