@@ -92,15 +92,15 @@ l(Z, \theta ; Y) &\overset{c}= \sum_{i<j} \Big\{Y_{ij} \Vert Z_i - Z_j \Vert - \
 
 \subsection{EM}
 
-One method for finding the latent variables $Z_i$ for each node is the Expectation-Maximization (EM) algorithm. Unfortunately, the log-likelihood given in Section \ref{Model Formulation} cannot easily be handled with EM. In particular, finding $\mathbb{E}\Big[l(Z, \theta ; Y)\Big]_{Z_i, Z_j | Y, \theta}$ is difficult. One solution is to sample and use Monte Carlo estimation in the E-step, then proceed with the M-step. This is the so-called Monte Carlo EM (MCEM) method.
+One method for finding the latent variables $Z_i$ for each node is the Expectation-Maximization (EM) algorithm. Unfortunately, the log-likelihood given in Section \ref{Model Formulation} cannot easily be handled with EM. In particular, finding $\mathbb{E}_{Z_i, Z_j | Y, \theta}\Big[l(Z, \theta ; Y)\Big]$ is difficult. One solution is to sample and use Monte Carlo estimation in the E-step, then proceed with the M-step. This is the so-called Monte Carlo EM (MCEM) method.
 
-Instead, we simplify our model to make EM more analytically tractable. In Section \ref{MCMC}, we fit the full model using MCMC. Here, we fit the simplified model using latent (standardized) distances $d_{ij} \equiv \text{logit}^{-1}\Vert Z_i - Z_j \Vert$
+Instead, we simplify our model to make EM more analytically tractable. In Section \ref{MCMC}, we fit the full model using MCMC. Here, we fit the simplified model:
 
 \begin{align*}
 Y_{ij} | d_{ij} &\sim \text{Bern}(d_{ij}) \\
 d_{ij} &\sim \text{Beta}(\alpha, \beta)
 \end{align*}
-Then
+where $d_{ij} \equiv \text{logit}^{-1}\Vert Z_i - Z_j \Vert$ are latent (standardized) distances. Then
 
 \begin{align*}
 \mathcal{L}(d, \alpha, \beta; Y) &= \prod_{i<j}d_{ij}^{Y_{ij}}\big(1 - d_{ij}\big)^{1 - Y_{ij}} \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}d_{ij}^{\alpha - 1}\big(1-d_{ij}\big)^{\beta - 1} \\
