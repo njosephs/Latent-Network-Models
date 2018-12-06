@@ -147,8 +147,11 @@ For the M-step, we simply take the partial derivatives of $Q\big(\theta; \theta^
 &\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big]}{{n \choose 2}} \tag{M1} \\
 \frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \beta^{(t)}} &= \sum_{i<j} \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- d_{ij})\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = 0 \\
 &\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1 - d_{ij})\big]}{{n \choose 2}} \tag{M2} \\
+\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\alpha^{(t)}}^2} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi'(\alpha^{(t+1)}) \\
+\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\beta^{(t)}}^2} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi'(\beta^{(t+1)}) \\
+\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\alpha^{(t)}}\beta^{(t)}} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big)
 \end{align*}
-
+Question about time superscripts.
 \subsubsection{Pseudocode}
 
 \begin{algorithm*}
