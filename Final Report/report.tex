@@ -125,9 +125,9 @@ d_{ij} | Y_{ij}, \theta &\propto \text{Bern}(d_{ij})\text{Beta}(\alpha, \beta)\\
 \end{align*}
 Therefore, we have
 \begin{align*}
-\mathbb{E}_{d_{ij} | Y_{ij}, \theta} [d_{ij}] &= \frac{\alpha + Y_{ij}}{\alpha + \beta + 1} \\
-\mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log d_{ij}\big] &= \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\
-\mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log (1 - d_{ij})\big] &= \Psi\Big(\beta + 1 - Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big)
+\pi_d = \mathbb{E}_{d_{ij} | Y_{ij}, \theta} [d_{ij}] &= \frac{\alpha + Y_{ij}}{\alpha + \beta + 1} \\
+\pi_{ld} = \mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log d_{ij}\big] &= \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\
+\pi_{l1d} = \mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log (1 - d_{ij})\big] &= \Psi\Big(\beta + 1 - Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big)
 \end{align*}
 where $\Psi$ is the digamma function. Thus
 \begin{align*}
@@ -158,37 +158,36 @@ g(\beta) &= \Psi \big(\alpha^{(t+1)} + \beta \big) - \Psi(\beta) + \sum_{i < j}\
 Using these equations, we can find the updates of $\alpha$ and $\beta$:
 
 \begin{align*}
-\alpha^{(t+1)} &= \alpha^{(t)} - \frac{\Psi\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi(\alpha^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi'(\alpha^{(t)})}
+\alpha^{(t+1)} &= \alpha^{(t)} - \frac{\Psi\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi(\alpha^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi'(\alpha^{(t)})} \tag{$\alpha$}
 \end{align*}
 
 \begin{align*}
-\beta^{(t+1)} &= \beta^{(t)} - \frac{\Psi\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi(\beta^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- d_{ij})\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi'(\beta^{(t)})}
+\beta^{(t+1)} &= \beta^{(t)} - \frac{\Psi\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi(\beta^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- d_{ij})\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi'(\beta^{(t)})} \tag{$\beta$}
 \end{align*}
 
-\begin{align*}
-\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\alpha^{(t)}}^2} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi'(\alpha^{(t+1)}) \\
-\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\beta^{(t)}}^2} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi'(\beta^{(t+1)}) \\
-\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\alpha^{(t)}}\beta^{(t)}} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big)
-\end{align*}
+%\begin{align*}
+%\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\alpha^{(t)}}^2} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi'(\alpha^{(t+1)}) \\
+%\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\beta^{(t)}}^2} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi'(\beta^{(t+1)}) \\
+%\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\alpha^{(t)}}\beta^{(t)}} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big)
+%\end{align*}
 
 \subsubsection{Pseudocode}
 
 \begin{algorithm*}
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
-    \underline{LNM EM} $(G)$\;
-    \Input{Graph $G$-- do we want to input G or Y}
-    \Output{Latent Distances $d_{ij}$-- what do we want here?}
+    \underline{LNM EM} $(G, tol)$\;
+    \Input{Graph $G$ \\ Tolerance $tol$}
+    \Output{Nuisance Parameters $\alpha^*$, $\beta^*$ \\ Latent Distances Estimates $\hat{d}$}
     Initialize values $\alpha^{(0)}$, $\beta^{(0)}$\;
-    Calculate $\pi^{(0)}_{\alpha}$, $\pi^{(t0}_{\beta}$\;
-    \Repeat{Q converge}{
-     update $\alpha^{(t+1)}$ using $\alpha^{(t)}$, $\beta^{(t)}$ and $\pi^{(t)}_{\alpha}$\;
-     update $\beta^{(t+1)}$ using $\beta^{(t)}$, $\alpha^{(t+1)}$ and $\pi^{(t)}_{\beta}$\;
-     calculate $\pi^{(t+1)}_{d}$, $\pi^{(t+1)}_{\alpha}$, $\pi^{(t+1)}_{\beta}$ using $\alpha^{(t+1)}$, $\beta^{(t+1)}$\;
-     calculate $Q(\theta, \theta^{(t+1)})$ using $\pi^{(t+1)}_{d}$, $\pi^{(t+1)}_{\alpha}$, $\pi^{(t+1)}_{\beta}$, $\alpha^{(t+1)}$, $\beta^{(t+1)}$
+    Calculate $\pi^{(0)}_{ld}$, $\pi^{(0)}_{l1d}$\;
+    \Repeat{$\frac{|Q(\theta^{(t+1)}, \theta^{(t)}) - Q(\theta^{(t)}, \theta^{(t)})|}{|Q(\theta^{(t)}, \theta^{(t)})|}<tol$}{
+     update $\alpha^{(t+1)}$ using ($\alpha$)\;
+     update $\beta^{(t+1)}$ using ($\beta$)\;
+     calculate $\pi^{(t+1)}_{d}$, $\pi^{(t+1)}_{ld}$, $\pi^{(t+1)}_{l1d}$\;
+     calculate $Q(\theta, \theta^{(t+1)})$ 
      }
-     \Return $\alpha^*$, $\beta^*$\;
-     calculate $\pi_d$;
+     \Return $\alpha^* = \alpha^{(t+1)}$, $\beta^* = \beta^{(t+1)}$, $\hat{d} = \pi_d^{(t+1)}$\
     \caption{EM for simplified latent network model}
 \end{algorithm*}
 
@@ -226,22 +225,33 @@ We can complete an identical analysis for $\sigma^2_{k_j}$ and we arrive at the 
 \begin{algorithm*}
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
-    \underline{LNM MCMC} $(G, \textbf{params}, ns)$\;
+    \underline{LNM MCMC} $(G, ns)$\;
     \Input{Graph $G$\\
-    \textbf{params}\\
     Number of samples $ns$}
-    \Output{Posterior p(\textbf{WHAT})}
-    Initialize vectors for \textbf{params}\;
-    Initialize \textbf{params}$^{(0)}$\;
+    \Output{Posterior $p(z|y,\theta)$}
+    Initialize  parameters $\mu^{(0)}, {\sigma^2}^{(0)}, \lambda^{(0)}, K^{(0)}, Z^{(0)}$\;
     \For{$t = 2,\ldots,ns$} {
-   sample ${\mathbf{\mu}_k}_i|\theta^{(t)},Y  \sim MVN\left(\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1 I_2}\right)$\;
-  sample $\mu_{k_j}|\theta^{(t)},Y \sim MVN \left(\frac{Z_j^{(t)}}{(\sigma_{k_j}^2)^{(t)}+1}, \frac{(\sigma_{k_j}^2)^{(t)}}{(\sigma_{k_j}^2)^{(t)}+1}I_2\right)$\;
-   sample $\sigma_{k_i}^2|\theta^{(t)},Y \sim \text{Inv}\Gamma\left(3/2, \frac{(Z_i - \mu_{k_i}^{(t)})^T(Z_i - \mu_{k_i}^{(t)})}{2} + 1\right)$ \;
-   sample $\sigma_{k_j}^2|\theta^{(t)}, Y \sim \text{Inv}\Gamma\left(3/2, \frac{(Z_j - \mu_{k_i}^{(t)})^T(Z_j - \mu_{k_j}^{(t)})}{2} + 1\right)$ \;
-   sample $\mathbf{z}$;
-   LOOK AT TIME POINTS FOR SIGMA;
+    \For{$i = 1, \dotsc, N_v$}{
+  	sample $K_{k_i} \sim Multinoulli(G, \lambda)$\;
+    }
+    \For{$i = 1, \dotsc, N_v$}{
+    	sample $\mu_{k_i}|\theta^{(t)},Y  \sim MVN\left(\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1 I_2}\right)$\;
+    }
+    \For{$i = 1, \dotsc, N_v$}{
+    	sample $\sigma_{k_i}^2|\theta^{(t)},Y \sim \text{Inv}\Gamma\left(3/2, \frac{(Z_i - \mu_{k_i}^{(t)})^T(Z_i - \mu_{k_i}^{(t)})}{2} + 1\right)$ \;
+    }
+   \For{$i=1, \dotsc, N_v$}{
+      sample $Z_i^* \sim MVN_2(0, \mathbb{I}_2)$\;
+      sample $U \sim Unif(0,1)$\;
+      $R(Z_i^*, Z_i^{(t)}) =  \min(1, \frac{P(Z_i^*|\theta^{(t)}, Y, Z_{[-1]})}{P(Z_i^{(t)}|\theta^{(t)}, Z_{[-1]})})$ \;
+      \If{$U\leq R(Z_i^*, Z_i^{(t)})$}{
+      $Z_i^{(t+1)} = Z_i^*$\;
+      \Else{$Z_i^{*(t+1)} = Z_i^{(t)}$}
+
+         }
    }
-   Use parameters to sample Z?
+   }
+
     \caption{Gibbs sampler for latent network model}
 \end{algorithm*}
 
