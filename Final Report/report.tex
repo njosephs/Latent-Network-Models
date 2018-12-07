@@ -30,18 +30,12 @@ After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes an
 
 \section{Models} \label{Models}
 
-\subsection{Latent Network Models}\label{LNM}
-Review of Hoff's papers (need's citations):
-\begin{enumerate}
-    \item Introduction of network data
-    \item Community detection in networks
-    \item Latent variable models 
-    \item Inclusion of observed covariates
-\end{enumerate}
 
 \subsection{Model Formulation}\label{Model Formulation}
 
-Following the layout in Section \ref{LNM}, we model the presence of an edge given our latent variables as
+[Ben] Intro paragraph: latent network models. Review of Hoff's papers. 
+
+Following the latent network model framework, we model the presence of an edge given our latent variables as
 \[\text{logit} \mathbb{P}(Y_{ij} = 1|Z) = ||Z_i - Z_j|| + \epsilon_{ij}\]
 where
 \[Z_i \overset{iid}{\sim}\sum_{g=1}^G \lambda_g\text{MVN}_d(\mu_g,\sigma_g^2I_d)\]
@@ -55,7 +49,7 @@ K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda_g\big) \\
 \mu_{k_i} &\overset{iid}\sim \text{MVN}_2(0, I_2) \\
 \sigma_{k_i}^2 &\overset{iid}\sim \text{Inv}\Gamma(1,1)
 \end{align*}
-With these, we can write the complete likelihood and log-likelihood, which we will use in both our fitting procedures. We let $\theta = (\mu, \sigma^2, K)$ denote our nuisance parameters. Then, we have
+With these, we can write the complete likelihood which we will use in both our fitting procedures. We let $\theta = (\mu, \sigma^2, K)$ denote our nuisance parameters. Then, we have
 
 \begin{align*}
 \mathcal{L}(Z, \theta; Y) &= \prod_{i<j}\mathbb{P}(Y_{ij} | Z_i, Z_j) \mathbb{P}(Z_i | K_i, \mu_{k_i}, \sigma_{k_i}^2) \mathbb{P}(Z_j | K_j, \mu_{k_j}, \sigma_j^2) \\ 
@@ -171,9 +165,8 @@ Using these equations, we can find the updates of $\alpha$ and $\beta$:
 %\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\alpha^{(t)}}\beta^{(t)}} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big)
 %\end{align*}
 
-\subsubsection{Pseudocode}
 
-\begin{algorithm*}
+\begin{algorithm*}\label{EM_alg}
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
     \underline{LNM EM} $(G, tol)$\;
@@ -188,7 +181,7 @@ Using these equations, we can find the updates of $\alpha$ and $\beta$:
      calculate $Q(\theta, \theta^{(t+1)})$ 
      }
      \Return $\alpha^* = \alpha^{(t+1)}$, $\beta^* = \beta^{(t+1)}$, $\hat{d} = \pi_d^{(t+1)}$\
-    \caption{EM for simplified latent network model}
+    \caption{EM for simplified latent network model...}
 \end{algorithm*}
 
 \subsection{MCMC}\label{MCMC}
@@ -221,7 +214,7 @@ We can complete an identical analysis for $\sigma^2_{k_j}$ and we arrive at the 
 \sigma_{k_j}^2|\theta^{(t)}, Y &\sim \text{Inv}\Gamma\left(3/2, \frac{(Z_j - \mu_{k_i}^{(t)})^T(Z_j - \mu_{k_j}^{(t)})}{2} + 1\right)\\
 \end{align*}
 
-\subsubsection{Pseudocode}
+
 \begin{algorithm*}
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
