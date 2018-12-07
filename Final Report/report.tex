@@ -53,7 +53,7 @@ Z_i | K_i = k_i &\overset{iid}\sim N(\mu_{k_i}, \sigma_{k_i}^2 I_2) \\
 K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda_g\big) \\
 \lambda_g &\overset{iid}\sim \frac{1}{G} \\
 \mu_{k_i} &\overset{iid}\sim \text{MVN}_2(0, I_2) \\
-\sigma_{k_i}^2 &\overset{iid}\sim \text{Inv}\chi^2_2
+\sigma_{k_i}^2 &\overset{iid}\sim \text{Inv}\Gamma(1,1)
 \end{align*}
 With these, we can write the complete likelihood and log-likelihood, which we will use in both our fitting procedures. We let $\theta = (\mu, \sigma^2, K)$ denote our nuisance parameters. Then, we have
 
@@ -65,10 +65,10 @@ With these, we can write the complete likelihood and log-likelihood, which we wi
 &\ \ \ \ \ \ \ \ \times f_{MVN}(\mu_{k_j}, \sigma_{k_j}^2I_2)\times  \lambda_j \times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\text{Inv}\chi^2_2} \\
 &\propto \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
 &\ \ \ \ \ \ \ \ \times \frac{1}{\sigma_{k_i}}\exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\} \enspace \frac{1}{\sigma_{k_j}^2}\exp\Big\{-\frac{1}{2\sigma_{k_j}}(Z_j - \mu_{k_j})^T (Z_j - \mu_{k_j})\Big\} \\
-&\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\Big\}\exp\Big\{-\frac{1}{2}\mu_{k_j}^T\mu_{k_j}\Big\}  \times \frac{1}{(\sigma_{k_i}^2)^2}\exp\Big\{-\frac{1}{2\sigma_{k_i}^2}\Big\}\frac{1}{(\sigma_{k_j}^2)^2}\exp\Big\{-\frac{1}{2\sigma_{k_j}^2}\Big\} \times \lambda_i \times \lambda_j
+&\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\Big\}\exp\Big\{-\frac{1}{2}\mu_{k_j}^T\mu_{k_j}\Big\}  \times \frac{1}{(\sigma_{k_i}^2)^2}\exp\Big\{-\frac{1}{\sigma_{k_i}^2}\Big\}\frac{1}{(\sigma_{k_j}^2)^2}\exp\Big\{-\frac{1}{\sigma_{k_j}^2}\Big\} \times \lambda_i \times \lambda_j
 \end{align*}
 
-Next, we turn to finding the full conditioal of each parameter in this likelihood function. At each iteration of the Gibbs sampler, $t$, we conditional on the current parmater vector $\theta^{(t)}$ and sample each parameter in stepwise fashion. We write the full conditionals as follows. 
+Next, we turn to finding the full conditional of each parameter in this likelihood function. At each iteration of the Gibbs sampler, $t$, we conditional on the current parameter vector $\theta^{(t)}$ and sample each parameter in stepwise fashion. We write the full conditionals as follows. 
 
 \begin{align*}
 f_{\mu_{k_i}|\theta^{(t)}, Y}(\mu_{k_i}|\theta^{(t)},Y) &\propto \exp\left\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T(Z_i - \mu_{k_i})\right\}\exp\left\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\right\}\\
@@ -76,7 +76,7 @@ f_{\mu_{k_i}|\theta^{(t)}, Y}(\mu_{k_i}|\theta^{(t)},Y) &\propto \exp\left\{-\fr
 &\propto\exp\left\{-\frac{Z_i^TZ_i}{2\sigma_{k_i}^t} + \frac{Z_i^T\mu_{k_i}}{\sigma_{k_i}^2} - \left(\frac{1}{2\sigma_{k_i}^2} + \frac{1}{\sigma_{k_i}^2}\right)\mu_{k_i}^T\mu_{k_i}\right\}\\
 &\propto\exp\left\{-\frac{(\sigma_{k_i}^2+1)}{2\sigma_{k_i}^t}\left(\mu_{k_i}-\frac{Z_i}{(\sigma_{k_i}^2+1)}\right)^T\left(\mu_{k_i}-\frac{Z_i}{(\sigma_{k_i}^2+1)}\right)\right\}\\
 \end{align*}
-We can complete an identical analysis for $\mu_{k_j}$ and we arrive at the following deistributions. 
+We can complete an identical analysis for $\mu_{k_j}$ and we arrive at the following distributions. 
 \begin{align*}
 \mu_{k_i}|\theta^{(t)},Y&\sim f_{MVN}\left(\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_2\right)\\
 \mu_{k_j}|\theta^{(t)},Y&\sim f_{MVN}\left(\frac{Z_j^{(t)}}{(\sigma_{k_j}^2)^{(t)}+1}, \frac{(\sigma_{k_j}^2)^{(t)}}{(\sigma_{k_j}^2)^{(t)}+1}I_2\right)
@@ -85,8 +85,15 @@ We can complete an identical analysis for $\mu_{k_j}$ and we arrive at the follo
 Now, we turn to finding the full conditional for the latent variance parameters $\sigma_{k_i}^2$. 
 
 \begin{align*}
-f_{\sigma_{k_i}^2|\theta, Y}(\sigma_{k_i}^2|\theta, Y) &\propto \frac{1}{2\sigma_{k_i}}\exp\left\{-\frac{1}{2\sigma_{k_i}^2}(Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})\right\}\frac{1}{(\sigma_{k_i}^2)^2}\exp\left\{-\frac{1}{2\sigma_{k_i}^2}\right\}\\
-&\propto \frac{1}{(\sigma_{k_i}^2)^{5/2}}\exp\left\{-\frac{1}{2\sigma_{k_i}^2}\left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right)\right\}
+f_{\sigma_{k_i}^2|\theta, Y}(\sigma_{k_i}^2|\theta, Y) &\propto \frac{1}{2\sigma_{k_i}}\exp\left\{-\frac{1}{2\sigma_{k_i}^2}(Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})\right\}\frac{1}{(\sigma_{k_i}^2)^2}\exp\left\{-\frac{1}{\sigma_{k_i}^2}\right\}\\
+&\propto (\sigma_{k_i}^2)^{-3/2-1}\exp\left\{-\frac{1}{\sigma_{k_i}^2}\left(\frac{(Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})}{2}+1\right)\right\}
+\end{align*}
+
+We can complete an identical analysis for $\sigma^2_{k_j}$ and we arrive at the following distributions. 
+
+\begin{align*}
+\sigma_{k_i}^2|\theta^{(t)}, Y &\sim \text{Inv}\Gamma\left(3/2, \frac{(Z_i - \mu_{k_i})^T(Z_i - \mu_{k_i})}{2} + 1\right)\\
+\sigma_{k_j}^2|\theta^{(t)}, Y &\sim \text{Inv}\Gamma\left(3/2, \frac{(Z_j - \mu_{k_i})^T(Z_j - \mu_{k_j})}{2} + 1\right)\\
 \end{align*}
 
 
