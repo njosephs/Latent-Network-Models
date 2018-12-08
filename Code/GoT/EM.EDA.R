@@ -1,12 +1,14 @@
 #----------------------------------------
 #
-#             EM EDA
+#             EM Unweighted EDA
 #
 #----------------------------------------
+
 
 #load up files + libraries
 library(ggplot2)
 library(gplots)
+load("./Data/A.Rdata")
 load("./Data/W.Rdata")
 source("./Code/GoT/LNM.EM.R")
 
@@ -38,7 +40,7 @@ D <- matrix(NA, nrow = nrow(A), ncol = ncol(A))
 D[upper.tri(D)] <- em$d
 D[lower.tri(D)] <- t(D)[lower.tri(D)] 
 diag(D) <- 0
-rownames(D) <- colnames(D) <- rownames(A3)
+rownames(D) <- colnames(D) <- rownames(A)
 
 G <- graph_from_adjacency_matrix(D, 
                                  weighted = TRUE, 
@@ -78,4 +80,35 @@ plot(G
 # no vertex level specific information 
 # network level inference on distribution of probs of edges 
 # 
+
+#----------------------------------------
+#
+#             EM Weighted EDA
+#
+#----------------------------------------
+
+#run EM
+em <- LNM.EM.W(W)
+
+#plot density
+plot(density(em$d[em$d < 5]))
+
+P <- matrix(NA, nrow = nrow(W), ncol = ncol(W))
+P[upper.tri(P)] <- em$p
+P[lower.tri(P)] <- t(P)[lower.tri(P)] 
+diag(P) <- 0
+rownames(P) <- colnames(P) <- rownames(W)
+df <- melt(P)
+p1 <- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile()
+
+
+df <- melt(W - P)
+p2<- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile()+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0,) 
+p2
+grid.arrange(p1,p1, ncol = 1)
 
