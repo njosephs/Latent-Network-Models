@@ -11,7 +11,7 @@ load("./Data/A.Rdata")
 source("./Code/GoT/LNM.EM.R")
 
 #run EM
-em <- LNM.EM(A3)
+em <- LNM.EM(A)
 
 #EM tables 
 knitr::kable(data.frame(Alpha = em$alpha, Beta = em$beta))

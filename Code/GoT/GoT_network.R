@@ -52,5 +52,5 @@ plot(G2
 A <- ifelse(A2 > 5 , 1, 0)
 
 #save Adjacency matrix 
-save(A, file = "./Code/A.Rdata")
+save(A, file = "./Data/A.Rdata")
 
