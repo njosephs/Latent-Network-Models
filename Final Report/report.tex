@@ -26,14 +26,14 @@ After discovering a dataset on the exchanges between the characters from the thi
 \section{Data}\label{Data}
 Due to its global fame, \textit{Game of Thrones} has been studied in many different contexts, especially in network analysis. Therefore, there are many readily available datasets. In our project, we use the dataset from \cite{beveridge2016network}, which contains information about characters' interactions in the third book of the series. In this case, an \textit{interaction} occurs if the characters' names appear within fifteen words of one another. This could mean that the characters interacted with each other, conversed with each other, or were generally mentioned together by another means. There is also a column that contains the number of times each pair interacts with one another. Using this dataset, we constructed a weighted network using the number of interactions as weights. Here, the nodes represent the characters and the edges represent the interactions. We use an adjacency matrix, $A$, to represent the network, where the $a_{i,j}$ element represents the number of times the characters interacted with each other. Note that this means if $a_{i.j} = 0$, there are no recorded interactions between character $i$ and $j$ based on how an \textit{interaction} is defined. Although the original dataset is intended as a directed network, we treat it as an undirected network in order to simplify our models.
 
-After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes and $N_E(G) = 352$ edges which means it is quite sparse since it only contains approximately $6.20\%$ of ${N_V(G) \choose 2} = 5,671$ possible edges. Figure \textbf{include figure} shows the network described. In order to account for the sparsity of our network, we consider a subnetwork which only contains pairs of characters with at least 75 interactions \textbf{or more?}. We chose a cutoff of 75 interactions because we want to focus our analysis on only the main characters. Looking at the distribution of the weighted degree, we see that $65.42\%$ of the characters had fewer than 75 interactions. Therefore, it makes sense to use this cutoff to limit our analysis to only the main characters. By doing so, our new network $G'$ contains $N_V(G') = 35$ nodes and $N_E(G') = 140$ edges. Here, we see that the network now contains $23.53\%$ of 595 possible edges, which is a more appropriate level of density for our analysis. Everything that follows is done on this subnetwork $G'$. Figure \textbf{include figure next to other figure} shows this subnetwork $G'$, and indeed, we recognize the main characters remain in our network.
+After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes and $N_E(G) = 352$ edges which means it is quite sparse since it only contains approximately $6.20\%$ of ${N_V(G) \choose 2} = 5,671$ possible edges. Figure \textbf{include figure} shows the network described. In order to account for the sparsity of our network, we consider a subnetwork which only contains pairs of characters with at least 100 interactions. We chose a cutoff of 100 interactions because we want to focus our analysis on only the main characters. Looking at the distribution of the weighted degree, we see that $77.6\%$ of the characters had fewer than 100 interactions. Therefore, it makes sense to use this cutoff to limit our analysis to only the main characters. By doing so, our new network $G'$ contains $N_V(G') = 24$ nodes and $N_E(G') = 102$ edges. Here, we see that the network now contains $38.2\%$ of 276 possible edges, which is a more appropriate level of density for our analysis. Everything that follows is done on this subnetwork $G'$. Figure \textbf{include figure next to other figure} shows this subnetwork $G'$, and indeed, we recognize the main characters remain in our network.
 
 \section{Models} \label{Models}
 
 
 \subsection{Model Formulation}\label{Model Formulation}
 
-[Ben] Intro paragraph: latent network models. Review of Hoff's papers. 
+\textbf{Ben} Intro paragraph: latent network models. Review of Hoff's papers. 
 
 Following the latent network model framework, we model the presence of an edge given our latent variables as
 \[\text{logit} \ \mathbb{P}(Y_{ij} = 1|Z) = ||Z_i - Z_j|| + \epsilon_{ij}\]
@@ -148,7 +148,6 @@ g(\alpha) &= \Psi \big(\alpha + \beta^{(t)} \big) - \Psi(\alpha) + \sum_{i < j}\
 g(\beta) &= \Psi \big(\alpha^{(t+1)} + \beta \big) - \Psi(\beta) + \sum_{i < j}\frac{ \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- p_{ij})\big] }{{n \choose 2}} \\
 &\implies g'(\beta) = \Psi' \big(\alpha^{(t+1)}  + \beta\big) - \Psi'(\beta)
 \end{align*}
-
 Using these equations, we can find the updates of $\alpha$ and $\beta$:
 
 \begin{align*}
@@ -197,7 +196,6 @@ f_{\mu_{k}|\theta^{(t)}, Y}(\mu_k|\theta^{(t)},Y) &\propto \prod_{k_i = k} \exp\
 &\propto\exp\left\{\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\} \Big[-\frac{Z_i^TZ_i}{2\sigma_{k_i}^t} + \frac{Z_i^T\mu_{k_i}}{\sigma_{k_i}^2} - \left(\frac{1}{2\sigma_{k_i}^2} + \frac{1}{\sigma_{k_i}^2}\right)\mu_{k_i}^T\mu_{k_i} \Big] \right\}\\
 &\propto\exp\left\{\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\} \Big[-\frac{(\sigma_{k_i}^2+1)}{2\sigma_{k_i}^t}\left(\mu_{k_i}-\frac{Z_i}{(\sigma_{k_i}^2+1)}\right)^T\left(\mu_{k_i}-\frac{Z_i}{(\sigma_{k_i}^2+1)}\right)\Big]\right\}\\
 \end{align*}
-
 Thus for all $k \in \{1, \ldots, G\}$, we arrive at the following distribution for $\mu_k | \theta^{(t)}, Y$:
 %\begin{align*}
 %\mu_{k_i}|\theta^{(t)},Y&\sim f_{MVN}\left(\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_2\right)\\
@@ -247,7 +245,6 @@ Since $K$ is Multinoulli, we arrive at the following probability by recognizing 
 Finally, we look at the conditional for the latent variable $Z_i$:
 
 \[f_{Z_i | \theta, Y}(Z_i | \theta, Y) \propto \prod_{j \neq i}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\}\]
-
 Since this is not a distribution we know how to sample from, we use a Metropolis-Hastings step. Here, we choose a symmetric proposal, which simplifies the subsequent rejection ratio:
 \begin{align*}
 q(Z_* | \theta^{(t)}, Y) &\sim MVN_2(0, I_2) \\
@@ -298,13 +295,19 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 
 \subsection{EM}
 
+unweighted: paragraph ($d_{ij} \iff Y_{ij}$)\\
+
+weighted: 3 heat maps, kernel density plot, cluster using distance matrix, network colored by clusters
+
 \subsection{MCMC}
 
-\subsection{Comparison}
+\textbf{Nate}: $\hat{Z} \in \mathbb{R}^2$ plot with $\hat{\mu}$ and $\hat{\sigma}^2$\\
+
+\textbf{Lily}: k-means: table, network colored by clusters
 
 \section{Conclusion} \label{Conclusion}
 
-book 3 is nice because its midpoint of releases so characters have developed, but what if we perform same analysis for the other books and map a character's goodness across each book. Also, could apply MCEM, or for simplified latent distance model, we could choose any GLM and change to conjugate prior
+\textbf{Nate}: book 3 is nice because its midpoint of releases so characters have developed, but what if we perform same analysis for the other books and map a character's goodness across each book. Also, could apply MCEM, or for simplified latent distance model, we could choose any GLM and change to conjugate prior
 
 \section{References}
 \printbibliography
