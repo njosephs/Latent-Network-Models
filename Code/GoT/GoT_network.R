@@ -1,9 +1,15 @@
+#----------------------------------------
+#
+#           Preprocessing
+#
+#----------------------------------------
+
 GoT <- read.csv("./Desktop/GitHub/Latent-Twitter-Models/Data/stormofswords.csv")
 GoT$Source <- as.character(GoT$Source)
 GoT$Target <- as.character(GoT$Target)
 GoT$Weight <- as.integer(GoT$Weight)
 
-# Create adjacency matrix
+# Create weighted adjacency matrix
 n <- length(unique(c(GoT$Source, GoT$Target))) # number of characters
 A <- matrix(0, nrow = n, ncol = n)
 colnames(A) <- rownames(A) <- unique(c(GoT$Source, GoT$Target))
@@ -12,7 +18,13 @@ for (v in 1:nrow(GoT)) {
 }
 A <- A + t(A)
 
-# EDA
+
+#----------------------------------------
+#
+#             EDA
+#
+#----------------------------------------
+
 library(igraph)
 G <- graph_from_adjacency_matrix(A, weighted = TRUE, mode = "undirected", add.rownames = TRUE)
 V(G)$label.cex <- degree(G) / max(degree(G))
@@ -35,3 +47,34 @@ plot(G2
      , vertex.color = "lightgreen"
      , margin = rep(-.35, 4)
      , curved = 200)
+
+#final unweighed adjacency matrix
+A <- ifelse(A2 != 0, 1, 0)
+
+#----------------------------------------
+#
+#             EM
+#
+#----------------------------------------
+
+library(ggplot2)
+source("./Code/GoT/LNM.EM.R")
+em <- LNM.EM(A)
+
+knitr::kable(data.frame(Alpha = em$alpha, Beta = em$beta))
+
+df <- data.frame(
+  x = seq(0, 1, length.out = 1000), 
+  y = dgamma(seq(0, 1, length.out = 1000), shape=em$alpha, scale=em$beta))
+
+
+
+# no vertex level specific information 
+# network level inference on distribution of probs of edges 
+# 
+
+
+
+
+
+
