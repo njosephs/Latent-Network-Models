@@ -28,9 +28,10 @@ d <- 2
 
 set.seed(589)
 res <- LNM.MCMC(A, Nk = Nk, d = d, ns = ns)
+samp <- seq(burn + 1, ns, 10)
 
 ##### d = 1
-Z.map <- apply(res$Z[, 1, (burn+1):ns], 1, mean)
+Z.map <- apply(res$Z[, 1, samp], 1, mean)
 hist(Z.map)
 plot(density(Z.map))
 plot(sort(Z.map))
@@ -44,19 +45,19 @@ colnames(A)[clusters == 5]
 ##### d = 2
 # plot(res$Z[4, 1, ], type = "l")
 
-Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , (burn+1):ns], 1, mean))
+Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , samp], 1, mean))
 plot(Z.map[1, ] ~ Z.map[2, ])
 
-clusters <- kmeans(t(Z.map), 2)$cluster
+clusters <- kmeans(t(Z.map), Nk)$cluster
 colnames(A)[clusters == 1]
 colnames(A)[clusters == 2]
 colnames(A)[clusters == 3]
 colnames(A)[clusters == 4]
 
-# ns = 50000, burn = 20000, 2 clusters
+# ns = 50000, burn = 20000, thin by 10, 2 clusters
 # Starks vs
 
-mu.map <- sapply(1:Nk, FUN = function(i) apply(res$mu[i, , (burn+1):ns], 1, mean))
+mu.map <- sapply(1:Nk, FUN = function(i) apply(res$mu[i, , samp], 1, mean))
 points(t(mu.map), pch = 3)
 
 ##### Nk = 2
