@@ -222,10 +222,10 @@ Q(\theta; \theta^{(t)}) &\equiv \mathbb{E}_{\lambda|Y, \theta^{(t)}}\big[l (\lam
 For the M-step, we take partial derivatives of $Q(\theta; \theta^{(t)})$ with respect to our parameters, and here, we see that we can update $\beta$ directly, but again, we have to use Newton Raphson for the $\alpha$. 
 
 \begin{align*}
-\frac{\partial Q(\theta; \theta^{(t)})}{\partial \alpha^{(t)}} &= \sum_{i<j}\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] + \log(\beta^{(t+1)}) - \Psi(\alpha^{(t+1)}) = 0\\
-	&\implies \Psi(\alpha^{(t+1)}) = \frac{\sum_{i<j} \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] + {n \choose 2} \log(\beta)}{{n \choose 2} } \tag{MW1}\\
 \frac{\partial Q(\theta; \theta^{(t)})}{\partial \beta^{(t)}}  &= -\sum_{i<j}\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\lambda_{ij}\big] + \frac{\alpha^{(t+1)}}{\beta^{(t+1)}}= 0\\
-	&\implies \beta^{(t+1)} = \frac{\alpha^{(t+1)}}{\frac{\sum_{i<j}\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\lambda_{ij} \big]}{{n \choose 2}}  }\tag{$\beta_W$}
+	&\implies \beta^{(t+1)} = \frac{\alpha^{(t+1)}}{\frac{\sum_{i<j}\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\lambda_{ij} \big]}{{n \choose 2}}  }\tag{$\beta_W$}\\
+\frac{\partial Q(\theta; \theta^{(t)})}{\partial \alpha^{(t)}} &= \sum_{i<j}\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] + \log(\beta^{(t+1)}) - \Psi(\alpha^{(t+1)}) = 0\\
+	&\implies \Psi(\alpha^{(t+1)}) = \frac{\sum_{i<j} \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] + {n \choose 2} \log(\beta)}{{n \choose 2} } \tag{MW1}
 \end{align*}
 
 For the Newton Raphson step, we define 
@@ -237,8 +237,28 @@ g(\alpha) &= \sum_{i<j} \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log
 Thus we have 
 \begin{align*}
 \alpha^{(t+1)} &= \alpha^{(t)} - \frac{\sum_{i<j} \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] + {n \choose 2} \log \beta^{(t)} - {n \choose 2}\Psi(\alpha)}{-{n \choose 2} \Psi'(\alpha)} \\
-	&= \alpha^{(t)} + \frac{\sum_{i<j} \frac{\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] }{{n \choose 2}}+ \log \beta^{(t)} -\Psi(\alpha^{(t)})}{ \Psi'(\alpha^{(t)})} \tag{$\alpha_W$}\\
+	&= \alpha^{(t)} - \frac{\Psi(\alpha^{(t)})-\sum_{i<j} \frac{\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] }{{n \choose 2}}- \log \beta^{(t)} }{ \Psi'(\alpha^{(t)})} \tag{$\alpha_W$}\\
 \end{align*}
+
+Algorithm \ref{EM_alg_weighted} shows the algorithm for the Weighted Model. 
+
+\begin{algorithm*}\label{EM_alg_weighted}
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \underline{LNM EM} $(G, tol)$\;
+    \Input{Graph $G$ \\ Tolerance $tol$}
+    \Output{Nuisance Parameters $\alpha^*$, $\beta^*$ \\ Latent Mean Estimates $\hat{\lambda}$ \\ Latent Distance Estimates $\hat{d}$}
+    Initialize $Q^{(0)}$
+    \Repeat{$\vert\frac{Q(\theta^{(t+1)}, \theta^{(t)}) - Q(\theta^{(t)}, \theta^{(t)})}{Q(\theta^{(t)}, \theta^{(t)})}\vert < tol$}{
+     \textbf{E:} calculate $\pi^{(t)}$, $\eta^{(t)}$\;
+     \textbf{M:}
+     update $\beta^{(t+1)}$ using ($\beta_W$)\;
+     update $\alpha^{(t+1)}$ using ($\alpha_W$)\;
+     calculate $Q(\theta, \theta^{(t+1)})$ 
+     }
+     \Return $\alpha^*$, $\beta^*$, $\hat{\lambda} = \pi^*$, $\hat{d} = \frac{1}{\pi^*}$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
+    \caption{EM for simplified latent network weighted model...}
+\end{algorithm*}
 
 \subsection{MCMC}\label{MCMC}
 \subsubsection{Full Conditionals}
@@ -321,8 +341,8 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
     }
    \For{$i=1, \dotsc, N_v$}{
       sample $Z_i^* \sim MVN_d(0, I_d)$\;
-      sample $U \sim \mathcal{U}(0,1)$\;
       $R(Z_i^*, Z_i^{(t)}) =  \min\Big(1, \frac{f_{Z | \theta, Y}(Z_i^*|\theta^{(t)}, Y, Z_{[-1]})}{f_{Z | \theta, Y}(Z_i^{(t)}|\theta^{(t)}, Z_{[-1]})}\Big)$ \;
+      sample $U \sim \mathcal{U}(0,1)$\;
       \If{$U\leq R(Z_i^*, Z_i^{(t)})$}{
       $Z_i^{(t+1)} = Z_i^*$\;
       \Else{$Z_i^{*(t+1)} = Z_i^{(t)}$}
