@@ -47,7 +47,7 @@ Z_i | K_i = k_i &\overset{iid}\sim MVN(\mu_{k_i}, \sigma_{k_i}^2 I_d) \\
 K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
 \lambda_k &\overset{iid}\sim \frac{1}{G} \\
 \mu_k &\overset{iid}\sim \text{MVN}_d(0, I_2) \\
-\sigma_k^2 &\overset{iid}\sim \text{Inv}\Gamma(1,1)
+\sigma_k^2 &\overset{iid}\sim \text{Inv} \chi^2_1
 \end{align*}
 With these, we can write the complete likelihood which we will use in both our fitting procedures. We let $\theta = (\mu, \sigma^2, K)$ denote our nuisance parameters. Then, we have
 
@@ -221,7 +221,7 @@ Thus for all $k \in \{1, \ldots, G\}$, we arrive at the following distribution f
 %\sigma_{k_j}^2|\theta^{(t)}, Y &\sim \text{Inv}\Gamma\left(3/2, \frac{(Z_j - \mu_{k_i}^{(t)})^T(Z_j - \mu_{k_j}^{(t)})}{2} + 1\right)\\
 %\end{align*}
 \begin{align*}
-\sigma_k^2 | \theta^{(t)}, Y \sim \text{Inv}\Gamma\Big( , \Big)
+\sigma_k^2 | \theta^{(t)}, Y \sim \Big(1 + \sum_{i=1}^{N_v}\mathbb{I}\{k_i = k\}(Z_i - \mu_k)^T(Z_i - \mu_k)\Big)\text{Inv}\chi^2_{1 + d\sum_{i=1}^{N_V}\mathbb{I}\{k_i = k\}}
 \end{align*}
 
 Next, we find the conditional probabilities for group assignment:
@@ -256,10 +256,10 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
     Initialize  parameters $\mu^{(0)}, {\sigma^2}^{(0)}, \lambda^{(0)}, K^{(0)}, Z^{(0)}$\;
     \For{$t = 2,\ldots,ns$} {
     \For{$k = 1, \dotsc, N_k$}{
-    	sample $\mu_{k}|\theta^{(t)},Y  \sim MVN_d\left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_d\right)$\;
+    	sample $\mu_{k}|\theta^{(t)},Y  \sim MVN_d\left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t-1)}}{(\sigma_{k_i}^2)^{(t-1)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t-1)}}{(\sigma_{k_i}^2)^{(t-1)}+1}I_d\right)$\;
     }
     \For{$k = 1, \dotsc, N_k$}{
-    	sample $\sigma_{k}^2|\theta^{(t)},Y \sim \text{Inv}\Gamma\left(3/2, \frac{(Z_i - \mu_{k}^{(t)})^T(Z_i - \mu_{k}^{(t)})}{2} + 1\right)$ \textbf{REPLACE} \;
+    	sample $\sigma_{k}^2|\theta^{(t)},Y \sim \Big(1 + \sum_{i=1}^{N_v}\mathbb{I}\{k_i = k\}(Z_i^{(t-1)} - \mu_k^{(t)})^T(Z_i^{(t-1)} - \mu_k^{(t)})\Big)\text{Inv}\chi^2_{1 + d\sum_{i=1}^{N_V}\mathbb{I}\{k_i = k\}}$ \;
     }
      \For{$i = 1, \dotsc, N_v$}{
   	sample $K_i \sim \text{Multinoulli}(G, \lambda^{(t)})$\;
