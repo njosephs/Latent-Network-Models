@@ -49,8 +49,8 @@ plot(G2
      , curved = 200)
 
 #final unweighed adjacency matrix
-A3 <- ifelse(A2 > 5 , 1, 0)
+A <- ifelse(A2 > 5 , 1, 0)
 
 #save Adjacency matrix 
-save(A3, file = "./Code/A.Rdata")
+save(A, file = "./Code/A.Rdata")
 
