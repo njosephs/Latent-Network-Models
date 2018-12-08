@@ -51,30 +51,4 @@ plot(G2
 #final unweighed adjacency matrix
 A <- ifelse(A2 != 0, 1, 0)
 
-#----------------------------------------
-#
-#             EM
-#
-#----------------------------------------
-
-library(ggplot2)
-source("./Code/GoT/LNM.EM.R")
-em <- LNM.EM(A)
-
-knitr::kable(data.frame(Alpha = em$alpha, Beta = em$beta))
-
-df <- data.frame(
-  x = seq(0, 1, length.out = 1000), 
-  y = dgamma(seq(0, 1, length.out = 1000), shape=em$alpha, scale=em$beta))
-
-
-
-# no vertex level specific information 
-# network level inference on distribution of probs of edges 
-# 
-
-
-
-
-
-
+#save Adjacency matrix save(A, file = "./Code/A.Rdata)
