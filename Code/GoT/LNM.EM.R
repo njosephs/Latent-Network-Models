@@ -79,7 +79,7 @@ nr.w <- function(alpha, beta, eta, nE, tol = 10e-4){
   #beta, eta is other parameters in Gamma
   #nE is number of edges 
   repeat{
-    alpha.new <- alpha + (sum(eta)/nE + log(beta) - digamma(alpha))/(trigamma(alpha)) #nr update  
+    alpha.new <- alpha - (digamma(alpha) - sum(eta)/nE - log(beta))/(trigamma(alpha)) #nr update  
     if(abs((alpha.new - alpha)/alpha)<tol) break #convergence check
     alpha <- alpha.new #update new parameter est
   }
@@ -109,8 +109,9 @@ LNM.EM.W <- function(W, tol = 10e-4, no.iters = 1000){
     eta <- log(1 +beta) + digamma(alpha + Y) # log(lambda_ij)
     
     #M Step 
-    alpha <- nr.w(alpha, beta, eta, nE)
     beta <-  (nE * alpha) / (sum(pi))
+    alpha <- nr.w(alpha, beta, eta, nE)
+    
     
     #Check convergence 
     Q.new <- sum((Y + alpha - 1)*eta  
@@ -122,7 +123,6 @@ LNM.EM.W <- function(W, tol = 10e-4, no.iters = 1000){
     if(iter > no.iters || (abs((Q.new - Q) / Q) < tol)) break
     Q <- Q.new
     iter <- iter + 1 
-    print(iter)
   }
   list(alpha = alpha, beta = beta, pi = pi, d = distance.w(pi), no.iter = iter)
 }
