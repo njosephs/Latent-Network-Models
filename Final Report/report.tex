@@ -38,15 +38,15 @@ After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes an
 Following the latent network model framework, we model the presence of an edge given our latent variables as
 \[\text{logit} \ \mathbb{P}(Y_{ij} = 1|Z) = ||Z_i - Z_j|| + \epsilon_{ij}\]
 where
-\[Z_i \overset{iid}{\sim}\sum_{k=1}^G \lambda_g\text{MVN}_d(\mu_k,\sigma_k^2I_d)\]
+\[Z_i \overset{iid}{\sim}\sum_{k=1}^G \lambda_k\text{MVN}_d(\mu_k,\sigma_k^2I_d)\]
 Putting priors over $\mu_k$ and  $\sigma_k^2$, as well as introducing the latent variable $K$ representing the group from which $Z$ is drawn, we have the following model formulation:
 
 \begin{align*}
 Y_{ij} | Z_i, Z_j &\sim \text{Bern}\Big[\text{logit}^{-1}\big(\Vert Z_i - Z_j \Vert\big)\Big] \\
-Z_i | K_i = k_i &\overset{iid}\sim N(\mu_{k_i}, \sigma_{k_i}^2 I_2) \\
+Z_i | K_i = k_i &\overset{iid}\sim MVN(\mu_{k_i}, \sigma_{k_i}^2 I_d) \\
 K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
 \lambda_k &\overset{iid}\sim \frac{1}{G} \textbf{DECIDE IF WE NEED THIS} \\
-\mu_k &\overset{iid}\sim \text{MVN}_2(0, I_2) \\
+\mu_k &\overset{iid}\sim \text{MVN}_d(0, I_2) \\
 \sigma_k^2 &\overset{iid}\sim \text{Inv}\Gamma(1,1)
 \end{align*}
 With these, we can write the complete likelihood which we will use in both our fitting procedures. We let $\theta = (\mu, \sigma^2, K)$ denote our nuisance parameters. Then, we have
@@ -55,8 +55,8 @@ With these, we can write the complete likelihood which we will use in both our f
 \mathcal{L}(Z, \theta; Y) &= \prod_{i<j}\mathbb{P}(Y_{ij} | Z_i, Z_j) \mathbb{P}(Z_i | K_i, \mu_{k_i}, \sigma_{k_i}^2) \mathbb{P}(Z_j | K_j, \mu_{k_j}, \sigma_j^2) \\ 
 &\ \ \ \ \ \ \ \ \times  \mathbb{P}(K_i | \lambda_i) \mathbb{P}(\lambda_i)\mathbb{P}(\mu_{k_i})\mathbb{P}(\sigma_{k_i}^2)\mathbb{P}(K_j)\mathbb{P}(\mu_{k_j})\mathbb{P}(\sigma_{k_j}^2) \\
 &= \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
-&\ \ \ \ \ \ \ \ \times f_{MVN}(\mu_{k_i}, \sigma_{k_i}^2I_2)\times\lambda_i \times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\text{Inv}\chi^2_2} \\
-&\ \ \ \ \ \ \ \ \times f_{MVN}(\mu_{k_j}, \sigma_{k_j}^2I_2)\times  \lambda_j \times \frac{1}{G} \times f_{MVN}(0, I_2) \times f_{\text{Inv}\chi^2_2} \\
+&\ \ \ \ \ \ \ \ \times f_{{MVN}_d} (\mu_{k_i}, \sigma_{k_i}^2I_d)\times\lambda_i \times \frac{1}{G} \times f_{{MVN}_d} (0, I_d) \times f_{\text{Inv}\chi^2_2} \\
+&\ \ \ \ \ \ \ \ \times f_{{MVN}_d}(\mu_{k_j}, \sigma_{k_j}^2I_d)\times  \lambda_j \times \frac{1}{G} \times f_{{MVN}_d} (0, I_d) \times f_{\text{Inv}\chi^2_2} \\
 &\propto \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
 &\ \ \ \ \ \ \ \ \times \frac{1}{(\sigma_{k_i}^2)^{1/2}}\exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\} \enspace \frac{1}{(\sigma_{k_j}^2)^{1/2}}\exp\Big\{-\frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^T (Z_j - \mu_{k_j})\Big\} \\
 &\ \ \ \ \ \ \ \ \times \exp\Big\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\Big\}\exp\Big\{-\frac{1}{2}\mu_{k_j}^T\mu_{k_j}\Big\}  \times \frac{1}{(\sigma_{k_i}^2)^2}\exp\Big\{-\frac{1}{\sigma_{k_i}^2}\Big\}\frac{1}{(\sigma_{k_j}^2)^2}\exp\Big\{-\frac{1}{\sigma_{k_j}^2}\Big\} \times \lambda_i \times \lambda_j
@@ -203,7 +203,7 @@ Thus for all $k \in \{1, \ldots, G\}$, we arrive at the following distribution f
 %\mu_{k_j}|\theta^{(t)},Y&\sim f_{MVN}\left(\frac{Z_j^{(t)}}{(\sigma_{k_j}^2)^{(t)}+1}, \frac{(\sigma_{k_j}^2)^{(t)}}{(\sigma_{k_j}^2)^{(t)}+1}I_2\right)
 %\end{align*}
 \begin{align*}
-\mu_{k}|\theta^{(t)},Y&\sim f_{MVN}\left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_2\right)\\
+\mu_{k}|\theta^{(t)},Y&\sim f_{{MVN}_d} \left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_2\right)\\
 \end{align*}
 
 Now, we turn to finding the full conditional for the latent variance parameters $\sigma_{k_i}^2$ \textbf{REDO}. 
@@ -249,13 +249,13 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
   	sample $K_{k_i} \sim \text{Multinoulli}(G, \lambda)$\;
     }
     \For{$k = 1, \dotsc, N_k$}{
-    	sample $\mu_{k}|\theta^{(t)},Y  \sim MVN_d\left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_2\right)$\;
+    	sample $\mu_{k}|\theta^{(t)},Y  \sim MVN_d\left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_d\right)$\;
     }
     \For{$k = 1, \dotsc, N_k$}{
     	sample $\sigma_{k}^2|\theta^{(t)},Y \sim \text{Inv}\Gamma\left(3/2, \frac{(Z_i - \mu_{k}^{(t)})^T(Z_i - \mu_{k}^{(t)})}{2} + 1\right)$ \textbf{REPLACE} \;
     }
    \For{$i=1, \dotsc, N_v$}{
-      sample $Z_i^* \sim MVN_2(0, \mathbb{I}_2)$\;
+      sample $Z_i^* \sim MVN_d(0, I_d)$\;
       sample $U \sim \mathcal{U}(0,1)$\;
       $R(Z_i^*, Z_i^{(t)}) =  \min\Big(1, \frac{f_{Z | \theta, Y}(Z_i^*|\theta^{(t)}, Y, Z_{[-1]})}{f_{Z | \theta, Y}(Z_i^{(t)}|\theta^{(t)}, Z_{[-1]})}\Big)$ \;
       \If{$U\leq R(Z_i^*, Z_i^{(t)})$}{
