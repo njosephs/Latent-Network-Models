@@ -83,20 +83,20 @@ With these, we can write the complete likelihood which we will use in both our f
 \section{Computational Methods} \label{Computational Methods}
 
 \subsection{EM}
-
+\subsubsection{Unweighted Model}
 One method for finding the latent variables $Z_i$ for each node is the Expectation-Maximization (EM) algorithm. Unfortunately, the likelihood given in Section \ref{Model Formulation} cannot easily be handled with EM. In particular, finding $\mathbb{E}_{Z_i, Z_j | Y, \theta}\Big[l(Z, \theta ; Y)\Big]$ is difficult. One solution is to sample and use Monte Carlo estimation in the E-step, then proceed with the M-step. This is the so-called Monte Carlo EM (MCEM) method.
 
 Instead, we simplify our model to make EM more analytically tractable. In Section \ref{MCMC}, we fit the full model using MCMC. Here, we fit the simplified model:
 
 \begin{align*}
-Y_{ij} | p_{ij} &\overset{iid}\sim \text{Bern}(p_{ij}) \\
+Y_{ij} | p_{ij} &\overset{ind}\sim \text{Bern}(p_{ij}) \\
 p_{ij} &\overset{iid}\sim \text{Beta}(\alpha, \beta)
 \end{align*}
 where we define $p_{ij} \equiv 2-2*\text{logit}^{-1} (d_{ij}) $ where $d_{ij}$ are latent distances defined in Section \ref{Model Formulation} and are calculated by $d_{ij} = logit(1 - \frac{p_{ij}}{2})$. We define $p_{ij}$ in this manner to ensure that higher probabilities result in smaller distances and smaller probabilties result in greater distances. Then
 
 \begin{align*}
-\mathcal{L}(d, \alpha, \beta; Y) &= \prod_{i<j}p_{ij}^{Y_{ij}}\big(1 - p_{ij}\big)^{1 - Y_{ij}} \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}p_{ij}^{\alpha - 1}\big(1-p_{ij}\big)^{\beta - 1} \\
-l(d, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{p_{ij}}{1 - p_{ij}}\Big) + (1-p_{ij})  \\
+\mathcal{L}(p, \alpha, \beta; Y) &= \prod_{i<j}p_{ij}^{Y_{ij}}\big(1 - p_{ij}\big)^{1 - Y_{ij}} \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}p_{ij}^{\alpha - 1}\big(1-p_{ij}\big)^{\beta - 1} \\
+l(p, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{p_{ij}}{1 - p_{ij}}\Big) + (1-p_{ij})  \\
 &\ \ \ \ \ \ \ \ + \log \Gamma(\alpha + \beta) - \log \Gamma(\alpha) - \log \Gamma(\beta) \\
 &\ \ \ \ \ \ \ \ + (\alpha - 1)\log p_{ij} + (\beta - 1)\log(1 - p_{ij})
 \end{align*}
@@ -109,9 +109,8 @@ l(d, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{p_{ij}}{1 - p_{ij}}\
 %&\ \ \ \ \ \ \ \ + \alpha \log \beta - \log \Gamma(\alpha) + (\alpha - 1) \log d_{ij} - \beta d_{ij}
 %\end{align*}
 
-\subsubsection{E-Step}
 
-For the E-step, we observe that the beta distribution is conjugate to the binomial. Therefore, we have
+For the E-step, we observe that the beta distribution is conjugate to the binomial. Also, since the $p_{ij}$ are iid, we have the following likelihood. Note we just suppress our parameters $\theta = \{\alpha, \beta\}$.
 
 \begin{align*}
 p_{ij} | Y_{ij}, \theta &\propto \text{Bern}(p_{ij})\times \text{Beta}(\alpha, \beta)\\
@@ -123,22 +122,22 @@ Therefore, we have
 \eta_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} \big[\log p_{ij}\big] = \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\
 \varphi_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} \big[\log (1 - p_{ij})\big] = \Psi\Big(\beta + 1 - Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big)
 \end{align*}
-where $\Psi$ is the digamma function. Here, we just suppress our parameters $\theta = \{\alpha, \beta\}$. Thus
+where $\Psi$ is the digamma function. Thus
 \begin{align*}
 Q\big(\theta; \theta^{(t)}\big) &\equiv \mathbb{E}_{p | Y, \theta^{(t)}} \Big[l(p; Y, \theta)\Big] \\
 &= \sum_{i<j} (Y_{ij} + \alpha - 1) \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} [\log  p_{ij}] - (Y_{ij} - \beta + 1) \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1-p_{ij})\big] \\
 &\ \ \ \ \ \ \ \ - \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} [p_{ij}] + 1 + \log \Gamma(\alpha + \beta) - \log \Gamma(\alpha) - \log \Gamma(\beta) \tag{E}
 \end{align*}
 
-\subsubsection{M-Step}
+
 
 For the M-step, we simply take the partial derivatives of $Q\big(\theta; \theta^{(t)}\big)$ with respect to $\alpha$ and $\beta$. Note that we will need an approximate solution in both cases since the digamma function prevents us from finding an analytic solution. For this, we use the Newton-Raphson Method.
 
 \begin{align*}
 \frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \alpha^{(t)}} &= \sum_{i<j} \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)})= 0 \\
-&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big]}{{n \choose 2}} \tag{M1} \\
+&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big]}{{n \choose 2}} \tag{MU1} \\
 \frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \beta^{(t)}} &= \sum_{i<j} \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- p_{ij})\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = 0 \\
-&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1 - p_{ij})\big]}{{n \choose 2}} \tag{M2} \\
+&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1 - p_{ij})\big]}{{n \choose 2}} \tag{MU2} \\
 \end{align*}
 
 For the Newton-Raphson Method, we first define 
@@ -151,11 +150,11 @@ g(\beta) &= \Psi \big(\alpha^{(t+1)} + \beta \big) - \Psi(\beta) + \sum_{i < j}\
 Using these equations, we can find the updates of $\alpha$ and $\beta$:
 
 \begin{align*}
-\alpha^{(t+1)} &= \alpha^{(t)} - \frac{\Psi\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi(\alpha^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi'(\alpha^{(t)})} \tag{$\alpha$}
+\alpha^{(t+1)} &= \alpha^{(t)} - \frac{\Psi\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi(\alpha^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi'(\alpha^{(t)})} \tag{$\alpha_U$}
 \end{align*}
 
 \begin{align*}
-\beta^{(t+1)} &= \beta^{(t)} - \frac{\Psi\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi(\beta^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- p_{ij})\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi'(\beta^{(t)})} \tag{$\beta$}
+\beta^{(t+1)} &= \beta^{(t)} - \frac{\Psi\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi(\beta^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- p_{ij})\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi'(\beta^{(t)})} \tag{$\beta_U$}
 \end{align*}
 
 %\begin{align*}
@@ -164,8 +163,9 @@ Using these equations, we can find the updates of $\alpha$ and $\beta$:
 %\frac{\partial^2 Q\big(\theta; \theta^{(t)}\big)}{\partial {\alpha^{(t)}}\beta^{(t)}} &= \Psi'\Big(\alpha^{(t+1)} + \beta^{(t)}\Big)
 %\end{align*}
 
+Algorithm \ref{EM_alg_unweighted} shows the algorithm for the Unweighted Model. 
 
-\begin{algorithm*}\label{EM_alg}
+\begin{algorithm*}\label{EM_alg_unweighted}
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
     \underline{LNM EM} $(G, tol)$\;
@@ -175,13 +175,88 @@ Using these equations, we can find the updates of $\alpha$ and $\beta$:
     \Repeat{$\vert\frac{Q(\theta^{(t+1)}, \theta^{(t)}) - Q(\theta^{(t)}, \theta^{(t)})}{Q(\theta^{(t)}, \theta^{(t)})}\vert < tol$}{
      \textbf{E:} calculate $\pi^{(t)}$, $\eta^{(t)}$, $\varphi^{(t)}$\;
      \textbf{M:}
-     update $\alpha^{(t+1)}$ using ($\alpha$)\;
-     update $\beta^{(t+1)}$ using ($\beta$)\;
+     update $\alpha^{(t+1)}$ using ($\alpha_U$)\;
+     update $\beta^{(t+1)}$ using ($\beta_U$)\;
 
      calculate $Q(\theta, \theta^{(t+1)})$ 
      }
      \Return $\alpha^*$, $\beta^*$, $\hat{p} = \pi^*$, $\hat{d} = logit^{-1}(1 - \frac{\pi^*}{2})$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
-    \caption{EM for simplified latent network model...}
+    \caption{EM for simplified latent network unweighted model...}
+\end{algorithm*}
+
+\subsubsection{Weighted Model}
+From the unweighted model, we were able to find convergent values for the latent distances for pairs of nodes in the network. However, because the unweighted model only depends on the existence of an edge between the nodes, there are only two possible values for these distances. Since we cannot infer anything from these, we turn to the weighted model for the latent distances where the weights correspond to the number of interactions between the characters.  
+
+In this weighted model, we fit the following model:
+\begin{align*}
+Y_{ij} | \lambda_{ij} &\overset{ind}\sim \text{Pois}(\lambda_{ij}) \\
+\lambda_{ij} &\overset{iid}\sim \text{Gamma}(\alpha, \beta)
+\end{align*}
+
+where now, $\lambda_{ij} = \frac{1}{d_{ij}}$ and $d_{ij}$ is defined as above and are calculated by $d_{ij} = \frac{1}{\lambda_{ij}}$. Again, we define $\lambda_{ij}$ in this manner in order to have smaller distances result in higher mean number of interactions and greater distances result in lower mean number of interactions. Thus the likelihood is:
+
+\begin{align*}
+\mathcal{L}(\lambda, \alpha, \beta; Y) &= \prod_{i<j}\frac{\lambda_{ij}^{Y_{ij}}e^{-\lambda_{ij}}}{y_{ij}!} \frac{\beta^{\alpha}}{\Gamma(\alpha)}\lambda_{ij}^{\alpha - 1}e^{-\beta \lambda_{ij}} \\
+l(\lambda, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \lambda_{ij}\big(y_{ij} + \alpha - 1) - \lambda_{ij}(1+ \beta) -\log(Y_{ij}!) + \alpha \log(\beta) - \log \Gamma(\alpha)
+\end{align*}
+
+Since $\lambda_{ij}$ are iid and since the Poisson and Gamma are conjugate, we know that 
+\begin{align*}
+\lambda_{ij}|Y_{ij}, \theta &\propto Pois(\lambda_{ij}) \times Gamma(\alpha, \beta ) \\
+	&= Gamma(\alpha + Y_{ij}, \beta + 1) \\
+\end{align*}
+
+Note we suppress our parameters $\theta = \{\alpha, \beta\}$. From here, we define the following quantities:
+\begin{align*}
+\pi_{ij} &\equiv \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta}\big[\lambda_{ij} \big] = \frac{\alpha + Y_{ij}}{1+ \beta} \\
+\eta_{ij} &\equiv \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta}\big[\log \lambda_{ij} \big] = \log(1 + \beta) + \Psi (\alpha + Y_{ij})
+\end{align*}
+
+and we have
+\begin{align*}
+Q(\theta; \theta^{(t)}) &\equiv \mathbb{E}_{\lambda|Y, \theta^{(t)}}\big[l (\lambda; Y, \theta) \big] \\
+	&= \sum_{i<j} (Y_{ij}+ \alpha - 1)\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] - (1+ \beta)\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}}\big[\lambda_{ij}\big] -\log(Y_{ij}!) + \alpha \log(\beta) - \log \Gamma(\alpha)
+\end{align*}
+
+For the M-step, we take partial derivatives of $Q(\theta; \theta^{(t)})$ with respect to our parameters, and here, we see that we can update $\beta$ directly, but again, we have to use Newton Raphson for the $\alpha$. 
+
+\begin{align*}
+\frac{\partial Q(\theta; \theta^{(t)})}{\partial \beta^{(t)}}  &= -\sum_{i<j}\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\lambda_{ij}\big] + \frac{\alpha^{(t+1)}}{\beta^{(t+1)}}= 0\\
+	&\implies \beta^{(t+1)} = \frac{\alpha^{(t+1)}}{\frac{\sum_{i<j}\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\lambda_{ij} \big]}{{n \choose 2}}  }\tag{$\beta_W$}\\
+\frac{\partial Q(\theta; \theta^{(t)})}{\partial \alpha^{(t)}} &= \sum_{i<j}\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] + \log(\beta^{(t+1)}) - \Psi(\alpha^{(t+1)}) = 0\\
+	&\implies \Psi(\alpha^{(t+1)}) = \frac{\sum_{i<j} \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] + {n \choose 2} \log(\beta)}{{n \choose 2} } \tag{MW1}
+\end{align*}
+
+For the Newton Raphson step, we define 
+\begin{align*}
+g(\alpha) &= \sum_{i<j} \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] + {n \choose 2} \log \beta^{(t)} - {n \choose 2}\Psi(\alpha)\\
+	&\implies g'(\alpha) = -{n \choose 2} \Psi'(\alpha)
+\end{align*}
+
+Thus we have 
+\begin{align*}
+\alpha^{(t+1)} &= \alpha^{(t)} - \frac{\sum_{i<j} \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] + {n \choose 2} \log \beta^{(t)} - {n \choose 2}\Psi(\alpha)}{-{n \choose 2} \Psi'(\alpha)} \\
+	&= \alpha^{(t)} - \frac{\Psi(\alpha^{(t)})-\sum_{i<j} \frac{\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] }{{n \choose 2}}- \log \beta^{(t)} }{ \Psi'(\alpha^{(t)})} \tag{$\alpha_W$}\\
+\end{align*}
+
+Algorithm \ref{EM_alg_weighted} shows the algorithm for the Weighted Model. 
+
+\begin{algorithm*}\label{EM_alg_weighted}
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \underline{LNM EM} $(G, tol)$\;
+    \Input{Graph $G$ \\ Tolerance $tol$}
+    \Output{Nuisance Parameters $\alpha^*$, $\beta^*$ \\ Latent Mean Estimates $\hat{\lambda}$ \\ Latent Distance Estimates $\hat{d}$}
+    Initialize $Q^{(0)}$
+    \Repeat{$\vert\frac{Q(\theta^{(t+1)}, \theta^{(t)}) - Q(\theta^{(t)}, \theta^{(t)})}{Q(\theta^{(t)}, \theta^{(t)})}\vert < tol$}{
+     \textbf{E:} calculate $\pi^{(t)}$, $\eta^{(t)}$\;
+     \textbf{M:}
+     update $\beta^{(t+1)}$ using ($\beta_W$)\;
+     update $\alpha^{(t+1)}$ using ($\alpha_W$)\;
+     calculate $Q(\theta, \theta^{(t+1)})$ 
+     }
+     \Return $\alpha^*$, $\beta^*$, $\hat{\lambda} = \pi^*$, $\hat{d} = \frac{1}{\pi^*}$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
+    \caption{EM for simplified latent network weighted model...}
 \end{algorithm*}
 
 \subsection{MCMC}\label{MCMC}
@@ -274,8 +349,8 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
     }
    \For{$i=1, \dotsc, N_v$}{
       sample $Z_i^* \sim MVN_d(0, I_d)$\;
-      sample $U \sim \mathcal{U}(0,1)$\;
       $R(Z_i^*, Z_i^{(t)}) =  \min\Big(1, \frac{f_{Z | \theta, Y}(Z_i^*|\theta^{(t)}, Y, Z_{[-1]})}{f_{Z | \theta, Y}(Z_i^{(t)}|\theta^{(t)}, Z_{[-1]})}\Big)$ \;
+      sample $U \sim \mathcal{U}(0,1)$\;
       \If{$U\leq R(Z_i^*, Z_i^{(t)})$}{
       $Z_i^{(t+1)} = Z_i^*$\;
       \Else{$Z_i^{*(t+1)} = Z_i^{(t)}$}
