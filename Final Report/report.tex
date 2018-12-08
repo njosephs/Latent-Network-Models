@@ -89,16 +89,16 @@ One method for finding the latent variables $Z_i$ for each node is the Expectati
 Instead, we simplify our model to make EM more analytically tractable. In Section \ref{MCMC}, we fit the full model using MCMC. Here, we fit the simplified model:
 
 \begin{align*}
-Y_{ij} | d_{ij} &\sim \text{Bern}(d_{ij}) \\
-d_{ij} &\sim \text{Beta}(\alpha, \beta)
+Y_{ij} | p_{ij} &\overset{iid}\sim \text{Bern}(p_{ij}) \\
+p_{ij} &\overset{iid}\sim \text{Beta}(\alpha, \beta)
 \end{align*}
-where $d_{ij} \equiv \text{logit}^{-1}\Vert Z_i - Z_j \Vert$ are latent (standardized) distances. Then
+where $p_{ij} \equiv \text{logit}^{-1} \frac{1}{\Vert Z_i - Z_j \Vert} = \text{logit}^{-1} \frac{1}{d_{ij}} $ are latent (standardized) distances. Then
 
 \begin{align*}
-\mathcal{L}(d, \alpha, \beta; Y) &= \prod_{i<j}d_{ij}^{Y_{ij}}\big(1 - d_{ij}\big)^{1 - Y_{ij}} \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}d_{ij}^{\alpha - 1}\big(1-d_{ij}\big)^{\beta - 1} \\
-l(d, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{d_{ij}}{1 - d_{ij}}\Big) + (1-d_{ij})  \\
+\mathcal{L}(d, \alpha, \beta; Y) &= \prod_{i<j}p_{ij}^{Y_{ij}}\big(1 - p_{ij}\big)^{1 - Y_{ij}} \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}p_{ij}^{\alpha - 1}\big(1-p_{ij}\big)^{\beta - 1} \\
+l(d, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{p_{ij}}{1 - p_{ij}}\Big) + (1-p_{ij})  \\
 &\ \ \ \ \ \ \ \ + \log \Gamma(\alpha + \beta) - \log \Gamma(\alpha) - \log \Gamma(\beta) \\
-&\ \ \ \ \ \ \ \ + (\alpha - 1)\log d_{ij} + (\beta - 1)\log(1 - d_{ij})
+&\ \ \ \ \ \ \ \ + (\alpha - 1)\log p_{ij} + (\beta - 1)\log(1 - p_{ij})
 \end{align*}
 
 %Gamma
@@ -114,20 +114,20 @@ l(d, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{d_{ij}}{1 - d_{ij}}\
 For the E-step, we observe that the beta distribution is conjugate to the binomial. Therefore, we have
 
 \begin{align*}
-d_{ij} | Y_{ij}, \theta &\propto \text{Bern}(d_{ij})\text{Beta}(\alpha, \beta)\\
+p_{ij} | Y_{ij}, \theta &\propto \text{Bern}(p_{ij})\times \text{Beta}(\alpha, \beta)\\
 &= \text{Beta}\Big(\alpha + Y_{ij}, \beta + 1 - Y_{ij}\Big)
 \end{align*}
 Therefore, we have
 \begin{align*}
-\pi_d &\equiv \mathbb{E}_{d_{ij} | Y_{ij}, \theta} [d_{ij}] = \frac{\alpha + Y_{ij}}{\alpha + \beta + 1} \\
-\pi_{ld} &\equiv \mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log d_{ij}\big] = \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\
-\pi_{l1d} &\equiv \mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log (1 - d_{ij})\big] = \Psi\Big(\beta + 1 - Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big)
+\pi_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} [p_{ij}] = \frac{\alpha + Y_{ij}}{\alpha + \beta + 1} \\
+\eta_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} \big[\log p_{ij}\big] = \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\
+\gamma_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} \big[\log (1 - p_{ij})\big] = \Psi\Big(\beta + 1 - Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big)
 \end{align*}
-where $\Psi$ is the digamma function. Thus
+where $\Psi$ is the digamma function. Here, we just suppress our parameters $\theta = \{\alpha, \beta\}$. Thus
 \begin{align*}
-Q\big(\theta; \theta^{(t)}\big) &\equiv \mathbb{E}_{d | Y, \theta^{(t)}} \Big[l(d; Y, \theta)\Big] \\
-&= \sum_{i<j} (Y_{ij} + \alpha - 1) \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} [\log  d_{ij}] - (Y_{ij} - \beta + 1) \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1-d_{ij})\big] \\
-&\ \ \ \ \ \ \ \ - \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} [d_{ij}] + 1 + \log \Gamma(\alpha + \beta) - \log \Gamma(\alpha) - \log \Gamma(\beta) \tag{E}
+Q\big(\theta; \theta^{(t)}\big) &\equiv \mathbb{E}_{p | Y, \theta^{(t)}} \Big[l(p; Y, \theta)\Big] \\
+&= \sum_{i<j} (Y_{ij} + \alpha - 1) \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} [\log  p_{ij}] - (Y_{ij} - \beta + 1) \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1-p_{ij})\big] \\
+&\ \ \ \ \ \ \ \ - \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} [p_{ij}] + 1 + \log \Gamma(\alpha + \beta) - \log \Gamma(\alpha) - \log \Gamma(\beta) \tag{E}
 \end{align*}
 
 \subsubsection{M-Step}
@@ -135,28 +135,28 @@ Q\big(\theta; \theta^{(t)}\big) &\equiv \mathbb{E}_{d | Y, \theta^{(t)}} \Big[l(
 For the M-step, we simply take the partial derivatives of $Q\big(\theta; \theta^{(t)}\big)$ with respect to $\alpha$ and $\beta$. Note that we will need an approximate solution in both cases since the digamma function prevents us from finding an analytic solution. For this, we use the Newton-Raphson Method.
 
 \begin{align*}
-\frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \alpha^{(t)}} &= \sum_{i<j} \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)})= 0 \\
-&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big]}{{n \choose 2}} \tag{M1} \\
-\frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \beta^{(t)}} &= \sum_{i<j} \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- d_{ij})\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = 0 \\
-&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1 - d_{ij})\big]}{{n \choose 2}} \tag{M2} \\
+\frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \alpha^{(t)}} &= \sum_{i<j} \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)})= 0 \\
+&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big]}{{n \choose 2}} \tag{M1} \\
+\frac{\partial Q\big(\theta; \theta^{(t)}\big)}{\partial \beta^{(t)}} &= \sum_{i<j} \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- p_{ij})\big] + \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = 0 \\
+&\implies \Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) = -\frac{\sum_{i<n}\mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1 - p_{ij})\big]}{{n \choose 2}} \tag{M2} \\
 \end{align*}
 
 For the Newton-Raphson Method, we first define 
 \begin{align*}
-g(\alpha) &= \Psi \big(\alpha + \beta^{(t)} \big) - \Psi(\alpha) + \sum_{i < j}\frac{ \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big] }{{n \choose 2}} \\
+g(\alpha) &= \Psi \big(\alpha + \beta^{(t)} \big) - \Psi(\alpha) + \sum_{i < j}\frac{ \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big] }{{n \choose 2}} \\
 &\implies g'(\alpha) = \Psi' \big(\alpha + \beta^{(t)} \big) - \Psi'(\alpha) \\
-g(\beta) &= \Psi \big(\alpha^{(t+1)} + \beta \big) - \Psi(\beta) + \sum_{i < j}\frac{ \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- d_{ij})\big] }{{n \choose 2}} \\
+g(\beta) &= \Psi \big(\alpha^{(t+1)} + \beta \big) - \Psi(\beta) + \sum_{i < j}\frac{ \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- p_{ij})\big] }{{n \choose 2}} \\
 &\implies g'(\beta) = \Psi' \big(\alpha^{(t+1)}  + \beta\big) - \Psi'(\beta)
 \end{align*}
 
 Using these equations, we can find the updates of $\alpha$ and $\beta$:
 
 \begin{align*}
-\alpha^{(t+1)} &= \alpha^{(t)} - \frac{\Psi\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi(\alpha^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log d_{ij}\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi'(\alpha^{(t)})} \tag{$\alpha$}
+\alpha^{(t+1)} &= \alpha^{(t)} - \frac{\Psi\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi(\alpha^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t)} + \beta^{(t)}\big) - \Psi'(\alpha^{(t)})} \tag{$\alpha$}
 \end{align*}
 
 \begin{align*}
-\beta^{(t+1)} &= \beta^{(t)} - \frac{\Psi\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi(\beta^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{d_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- d_{ij})\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi'(\beta^{(t)})} \tag{$\beta$}
+\beta^{(t+1)} &= \beta^{(t)} - \frac{\Psi\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi(\beta^{(t)}) + \sum_{i < j}\frac{ \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1- p_{ij})\big] }{{n \choose 2}}}{\Psi'\big(\alpha^{(t+1)} + \beta^{(t)}\big) - \Psi'(\beta^{(t)})} \tag{$\beta$}
 \end{align*}
 
 %\begin{align*}
