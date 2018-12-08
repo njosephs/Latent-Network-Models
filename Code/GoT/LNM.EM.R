@@ -1,15 +1,15 @@
 #----------------------------------------
 #
-#               EM.LNM
+#               EM.LNM.U
 #
 #----------------------------------------
 
 #pij -> dij 
 logit <- function(p) log(p/(1 - p))
-distance <- function(p) logit(1 - p/2)
+distance.u <- function(p) logit(1 - p/2)
 
 #newton raphson 
-nr <- function(x, y, s, nE, tol = 10e-4){
+nr.u <- function(x, y, s, nE, tol = 10e-4){
   #x is parameter to update 
   #y is other parameter in beta dist 
   # eta or phi
@@ -23,7 +23,7 @@ nr <- function(x, y, s, nE, tol = 10e-4){
 }
 
 #EM
-LNM.EM <- function(A, tol = 10e-4, no.iters = 1000){
+LNM.EM.U <- function(A, tol = 10e-4, no.iters = 1000){
   
   #An unweighted adj matrix
   
@@ -46,8 +46,8 @@ LNM.EM <- function(A, tol = 10e-4, no.iters = 1000){
     phi <- digamma(beta + 1 - Y) - digamma(alpha + beta + 1) # log(1-p_ij)
     
     #M Step 
-    alpha <- nr(alpha, beta, eta, nE)
-    beta <-  nr(beta, alpha, phi, nE)
+    alpha <- nr.u(alpha, beta, eta, nE)
+    beta <-  nr.u(beta, alpha, phi, nE)
     
     #Check convergence 
     Q.new <- sum((Y + alpha - 1)*eta  
@@ -61,8 +61,73 @@ LNM.EM <- function(A, tol = 10e-4, no.iters = 1000){
     iter <- iter + 1 
   }
   
-  list(alpha = alpha, beta = beta, pi = pi, d = distance(pi), no.iter = iter)
+  list(alpha = alpha, beta = beta, pi = pi, d = distance.u(pi), no.iter = iter)
 }
+
+#----------------------------------------
+#
+#               EM.LNM.W
+#
+#----------------------------------------
+
+#pij -> dij 
+distance.w <- function(l) 1/l 
+
+#newton raphson 
+nr.w <- function(alpha, beta, eta, nE, tol = 10e-4){
+  #lapha is parameter to update 
+  #beta, eta is other parameters in Gamma
+  #nE is number of edges 
+  repeat{
+    alpha.new <- alpha + (sum(eta)/nE + log(beta) - digamma(alpha))/(trigamma(alpha)) #nr update  
+    if(abs((alpha.new - alpha)/alpha)<tol) break #convergence check
+    alpha <- alpha.new #update new parameter est
+  }
+  return(alpha.new)
+}
+
+#EM
+LNM.EM.W <- function(W, tol = 10e-4, no.iters = 1000){
+  
+  #An unweighted adj matrix
+  
+  #create Y vector -------------------------------------
+  Y <- as.numeric(W[upper.tri(W)])
+  nE <- length(Y) 
+  
+  #Initialize parameter values -------------------------
+  alpha <- 1 #Prior beta values from uniform
+  beta <- 1 #Prior beta values from uniform
+  Q <- 0 #initialize Q
+  iter <- 1
+  
+  #iterate until convergence
+  repeat{
+    
+    #E Step 
+    pi <- (alpha + Y)/(beta + 1) # lambda_ij
+    eta <- log(1 +beta) + digamma(alpha + Y) # log(lambda_ij)
+    
+    #M Step 
+    alpha <- nr.w(alpha, beta, eta, nE)
+    beta <-  (nE * alpha) / (sum(pi))
+    
+    #Check convergence 
+    Q.new <- sum((Y + alpha - 1)*eta  
+                 -(1 + beta)*pi 
+                 - log(factorial(Y))
+                 + alpha * log(beta) - log(gamma(alpha))
+    )
+    
+    if(iter > no.iters || (abs((Q.new - Q) / Q) < tol)) break
+    Q <- Q.new
+    iter <- iter + 1 
+    print(iter)
+  }
+  list(alpha = alpha, beta = beta, pi = pi, d = distance.w(pi), no.iter = iter)
+}
+
+
 
 
 

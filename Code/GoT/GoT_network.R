@@ -48,9 +48,11 @@ plot(G2
      , margin = rep(-.35, 4)
      , curved = 200)
 
-#final unweighed adjacency matrix
-A <- ifelse(A2 > 5 , 1, 0)
+#final unweighted/weighted adjacency matrix
+A <- ifelse(A2 != 0, 1, 0)
+W <- A2
 
-#save Adjacency matrix 
+#save Adjacency matrices 
 save(A, file = "./Data/A.Rdata")
+save(W, file = "./Data/W.Rdata")
 
