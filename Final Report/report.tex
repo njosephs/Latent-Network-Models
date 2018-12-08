@@ -45,7 +45,7 @@ Putting priors over $\mu_k$ and  $\sigma_k^2$, as well as introducing the latent
 Y_{ij} | Z_i, Z_j &\sim \text{Bern}\Big[\text{logit}^{-1}\big(\Vert Z_i - Z_j \Vert\big)\Big] \\
 Z_i | K_i = k_i &\overset{iid}\sim MVN(\mu_{k_i}, \sigma_{k_i}^2 I_d) \\
 K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
-\lambda_k &\overset{iid}\sim \frac{1}{G} \textbf{DECIDE IF WE NEED THIS} \\
+\lambda_k &\overset{iid}\sim \frac{1}{G} \\
 \mu_k &\overset{iid}\sim \text{MVN}_d(0, I_2) \\
 \sigma_k^2 &\overset{iid}\sim \text{Inv}\Gamma(1,1)
 \end{align*}
@@ -223,6 +223,15 @@ Thus for all $k \in \{1, \ldots, G\}$, we arrive at the following distribution f
 \sigma_k^2 | \theta^{(t)}, Y \sim \text{Inv}\Gamma\Big( , \Big)
 \end{align*}
 
+Next, we find the conditional probabilities for group assignment:
+\[\mathbb{P}(K_i = k | \theta, Y) \propto \lambda_k f_{{MVN}_d(\mu_k, \sigma_k^2)}(Z_i)\]
+Since $K$ is Multinoulli, we arrive at the following probability by recognizing they must normalize to unity:
+
+\begin{align*}
+\mathbb{P}(K_i = k | \theta, Y) &= \frac{\lambda_k f_{{MVN}_d(\mu_k, \sigma_k^2)}(Z_i)}{\sum_{g=1}^G\lambda_g f_{{MVN}_d(\mu_g, \sigma_g^2)}(Z_i)} \\
+&= \frac{f_{{MVN}_d(\mu_k, \sigma_k^2)}(Z_i)}{\sum_{g=1}^G f_{{MVN}_d(\mu_g, \sigma_g^2)}(Z_i)} \tag{$\lambda^{(t)}$}
+\end{align*}
+
 Finally, we look at the conditional for the latent variable $Z_i$:
 
 \[f_{Z_i | \theta, Y}(Z_i | \theta, Y) \propto \prod_{j \neq i}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\}\]
@@ -245,14 +254,14 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
     \Output{Posterior $p(Z|Y,\theta)$}
     Initialize  parameters $\mu^{(0)}, {\sigma^2}^{(0)}, \lambda^{(0)}, K^{(0)}, Z^{(0)}$\;
     \For{$t = 2,\ldots,ns$} {
-    \For{$i = 1, \dotsc, N_v$}{
-  	sample $K_{k_i} \sim \text{Multinoulli}(G, \lambda)$\;
-    }
     \For{$k = 1, \dotsc, N_k$}{
     	sample $\mu_{k}|\theta^{(t)},Y  \sim MVN_d\left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_d\right)$\;
     }
     \For{$k = 1, \dotsc, N_k$}{
     	sample $\sigma_{k}^2|\theta^{(t)},Y \sim \text{Inv}\Gamma\left(3/2, \frac{(Z_i - \mu_{k}^{(t)})^T(Z_i - \mu_{k}^{(t)})}{2} + 1\right)$ \textbf{REPLACE} \;
+    }
+     \For{$i = 1, \dotsc, N_v$}{
+  	sample $K_i \sim \text{Multinoulli}(G, \lambda^{(t)})$\;
     }
    \For{$i=1, \dotsc, N_v$}{
       sample $Z_i^* \sim MVN_d(0, I_d)$\;
