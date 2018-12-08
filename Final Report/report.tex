@@ -45,7 +45,7 @@ Putting priors over $\mu_k$ and  $\sigma_k^2$, as well as introducing the latent
 Y_{ij} | Z_i, Z_j &\sim \text{Bern}\Big[\text{logit}^{-1}\big(\Vert Z_i - Z_j \Vert\big)\Big] \\
 Z_i | K_i = k_i &\overset{iid}\sim N(\mu_{k_i}, \sigma_{k_i}^2 I_2) \\
 K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
-\lambda_k &\overset{iid}\sim \frac{1}{G} \\
+\lambda_k &\overset{iid}\sim \frac{1}{G} \textbf{DECIDE IF WE NEED THIS} \\
 \mu_k &\overset{iid}\sim \text{MVN}_2(0, I_2) \\
 \sigma_k^2 &\overset{iid}\sim \text{Inv}\Gamma(1,1)
 \end{align*}
@@ -119,9 +119,9 @@ d_{ij} | Y_{ij}, \theta &\propto \text{Bern}(d_{ij})\text{Beta}(\alpha, \beta)\\
 \end{align*}
 Therefore, we have
 \begin{align*}
-\pi_d &= \mathbb{E}_{d_{ij} | Y_{ij}, \theta} [d_{ij}] = \frac{\alpha + Y_{ij}}{\alpha + \beta + 1} \\
-\pi_{ld} &= \mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log d_{ij}\big] = \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\
-\pi_{l1d} &= \mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log (1 - d_{ij})\big] = \Psi\Big(\beta + 1 - Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big)
+\pi_d &\equiv \mathbb{E}_{d_{ij} | Y_{ij}, \theta} [d_{ij}] = \frac{\alpha + Y_{ij}}{\alpha + \beta + 1} \\
+\pi_{ld} &\equiv \mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log d_{ij}\big] = \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\
+\pi_{l1d} &\equiv \mathbb{E}_{d_{ij} | Y_{ij}, \theta} \big[\log (1 - d_{ij})\big] = \Psi\Big(\beta + 1 - Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big)
 \end{align*}
 where $\Psi$ is the digamma function. Thus
 \begin{align*}
@@ -220,17 +220,19 @@ Thus for all $k \in \{1, \ldots, G\}$, we arrive at the following distribution f
 %\sigma_{k_j}^2|\theta^{(t)}, Y &\sim \text{Inv}\Gamma\left(3/2, \frac{(Z_j - \mu_{k_i}^{(t)})^T(Z_j - \mu_{k_j}^{(t)})}{2} + 1\right)\\
 %\end{align*}
 \begin{align*}
-\sigma_k^2 | \theta^{(t)}. Y \sim \text{Inv}\Gamma\Big( , \Big)
+\sigma_k^2 | \theta^{(t)}, Y \sim \text{Inv}\Gamma\Big( , \Big)
 \end{align*}
 
-Finally, we look at the conditional for the latent variable $Z_i$: \textbf{TEX}
+Finally, we look at the conditional for the latent variable $Z_i$:
 
+\[f_{Z_i | \theta, Y}(Z_i | \theta, Y) \propto \prod_{j \neq i}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\}\]
+
+Since this is not a distribution we know how to sample from, we use a Metropolis-Hastings step. Here, we choose a symmetric proposal, which simplifies the subsequent rejection ratio:
 \begin{align*}
-f_{Z_i | \theta, Y}(Z_i | \theta, Y)
+q(Z_* | \theta^{(t)}, Y) &\sim MVN_2(0, I_2) \\
+R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \theta^{(t)}, Y)}{f_{Z | \theta, Y}(Z^{(t)} | \theta^{(t)}, Y)q(Z^* | \theta^{(t)}, Y)} \\
+&= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)}{f_{Z | \theta, Y}(Z^{(t)} | \theta^{(t)}, Y)} 
 \end{align*}
-
-Since this is not a distribution we know how to sample from, we use a Metropolis-Hastings step. Here, we describe the proposal and subsequent rejection ratio. \textbf{TEX}
-
 
 \begin{algorithm*}
     \SetKwInOut{Input}{Input}
@@ -244,7 +246,7 @@ Since this is not a distribution we know how to sample from, we use a Metropolis
     Initialize  parameters $\mu^{(0)}, {\sigma^2}^{(0)}, \lambda^{(0)}, K^{(0)}, Z^{(0)}$\;
     \For{$t = 2,\ldots,ns$} {
     \For{$i = 1, \dotsc, N_v$}{
-  	sample $K_{k_i} \sim Multinoulli(G, \lambda)$\;
+  	sample $K_{k_i} \sim \text{Multinoulli}(G, \lambda)$\;
     }
     \For{$k = 1, \dotsc, N_k$}{
     	sample $\mu_{k}|\theta^{(t)},Y  \sim MVN_d\left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_2\right)$\;
@@ -254,8 +256,8 @@ Since this is not a distribution we know how to sample from, we use a Metropolis
     }
    \For{$i=1, \dotsc, N_v$}{
       sample $Z_i^* \sim MVN_2(0, \mathbb{I}_2)$\;
-      sample $U \sim Unif(0,1)$\;
-      $R(Z_i^*, Z_i^{(t)}) =  \min(1, \frac{P(Z_i^*|\theta^{(t)}, Y, Z_{[-1]})}{P(Z_i^{(t)}|\theta^{(t)}, Z_{[-1]})})$ \;
+      sample $U \sim \mathcal{U}(0,1)$\;
+      $R(Z_i^*, Z_i^{(t)}) =  \min\Big(1, \frac{f_{Z | \theta, Y}(Z_i^*|\theta^{(t)}, Y, Z_{[-1]})}{f_{Z | \theta, Y}(Z_i^{(t)}|\theta^{(t)}, Z_{[-1]})}\Big)$ \;
       \If{$U\leq R(Z_i^*, Z_i^{(t)})$}{
       $Z_i^{(t+1)} = Z_i^*$\;
       \Else{$Z_i^{*(t+1)} = Z_i^{(t)}$}
