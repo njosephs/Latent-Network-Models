@@ -36,7 +36,7 @@ plot(G
      , margin = rep(0, 4))
 
 # Only keep important characters
-A2 <- A[which(rowSums(A) > 75), which(rowSums(A) > 75)]
+A2 <- A[which(rowSums(A) > 100), which(rowSums(A) > 100)]
 G2 <- graph_from_adjacency_matrix(A2, weighted = TRUE, mode = "undirected", add.rownames = TRUE)
 V(G2)$label.cex <- degree(G2) / max(degree(G2))
 plot(G2
@@ -49,6 +49,8 @@ plot(G2
      , curved = 200)
 
 #final unweighed adjacency matrix
-A <- ifelse(A2 != 0, 1, 0)
+A3 <- ifelse(A2 > 5 , 1, 0)
 
-#save Adjacency matrix save(A, file = "./Code/A.Rdata)
+#save Adjacency matrix 
+save(A3, file = "./Code/A.Rdata")
+
