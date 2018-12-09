@@ -32,7 +32,7 @@ layout <- layout_with_dh(G)
 
 pdf("./figures/graph_dist_unweighted.pdf")
 plot(G 
-     #, vertex.size = strength(G) 
+     , vertex.size = strength(G)/max(strength(G))
      , edge.width = log(E(G)$weight)
      , layout = layout_with_dh(G)
      , color = "grey86"

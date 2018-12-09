@@ -12,7 +12,7 @@ distance.u <- function(p) logit(1 - p/2)
 nr.u <- function(x, y, s, nE, tol = 10e-4){
   #x is parameter to update 
   #y is other parameter in beta dist 
-  # eta or phi
+  #pi or eta
   #nE is number of edges 
   repeat{
     x.new <- x - ((digamma(x + y) -  digamma(x) +  sum(s)/nE) /(trigamma(x + y) - trigamma(x))) #nr update  
@@ -41,19 +41,17 @@ LNM.EM.U <- function(A, tol = 10e-4, no.iters = 1000){
   repeat{
   
     #E Step 
-    pi <- (alpha + Y)/(alpha + beta + 1) # p_ij
-    eta <- digamma(alpha + Y) - digamma(alpha + beta+ 1) # log(p_ij)
-    phi <- digamma(beta + 1 - Y) - digamma(alpha + beta + 1) # log(1-p_ij)
+    pi <- digamma(alpha + Y) - digamma(alpha + beta + 1) # log(p_ij)
+    eta <- digamma(beta + 1 - Y) - digamma(alpha + beta + 1) # log(1-p_ij)
     
     #M Step 
-    alpha <- nr.u(alpha, beta, eta, nE)
-    beta <-  nr.u(beta, alpha, phi, nE)
+    alpha <- nr.u(alpha, beta, pi, nE)
+    beta <-  nr.u(beta, alpha, eta, nE)
     
     #Check convergence 
-    Q.new <- sum((Y + alpha - 1)*eta  
-                  - (Y - beta + 1)*phi 
-                  - pi
-                  +1 + log(gamma(alpha + beta)) - log(gamma(alpha)) - log(gamma(beta))
+    Q.new <- sum((Y + alpha - 1)*pi  
+                  + (beta - Y)*eta 
+                  + log(gamma(alpha + beta)) - log(gamma(alpha)) - log(gamma(beta))
                   )
       
     if(iter > no.iters || (abs((Q.new - Q) / Q) < tol)) break
@@ -61,7 +59,7 @@ LNM.EM.U <- function(A, tol = 10e-4, no.iters = 1000){
     iter <- iter + 1 
   }
   
-  list(alpha = alpha, beta = beta, pi = pi, d = distance.u(pi), no.iter = iter)
+  list(alpha = alpha, beta = beta, pi = pi, eta = eta, d = distance.u(exp(pi)), no.iter = iter)
 }
 
 #----------------------------------------
