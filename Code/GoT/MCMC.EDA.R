@@ -1,8 +1,11 @@
 library(rgl)
 library(igraph)
 
-load("~/Documents/GitHub/Latent-Network-Models/Data/A.Rdata")
-source("~/Documents/GitHub/Latent-Network-Models/Code/GoT/LNM.MCMC.R")
+# load("~/Documents/GitHub/Latent-Network-Models/Data/A.Rdata")
+# source("~/Documents/GitHub/Latent-Network-Models/Code/GoT/LNM.MCMC.R")
+
+load("./Desktop/GitHub/Latent-Network-Models/Data/A.Rdata")
+source("./Desktop/GitHub/Latent-Network-Models/Code/GoT/LNM.MCMC.R")
 
 mcmc_array <- function (ns, nchains, params) {
   nparams <- length(params)
@@ -12,8 +15,8 @@ mcmc_array <- function (ns, nchains, params) {
                         parameters = params))
 }
 
-ns <- 5000
-burn <- 1000
+ns <- 25000
+burn <- 10000
 Nv <- nrow(A)
 Nk <- 3
 d <- 2
@@ -31,11 +34,33 @@ d <- 2
 
 set.seed(589)
 res <- LNM.MCMC(A, Nk = Nk, d = d, ns = ns)
-samp <- seq(burn, ns, 10) #thinning
+samp <- seq(burn, ns, 10) # thinning
+
+##### d = 2
+# plot(res$Z[4, 1, ], type = "l")
+
+Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , samp], 1, mean))
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+clusters <- apply(res$K[, samp], 1, Mode)
+colnames(A)[clusters == 1]
+colnames(A)[clusters == 2]
+colnames(A)[clusters == 3]
+plot(Z.map[1, ] ~ Z.map[2, ], col = clusters)
+mu.map <- sapply(1:Nk, FUN = function(i) apply(res$mu[i, , samp], 1, mean))
+points(t(mu.map), pch = 3)
+sigma.map <- apply(res$sigma[, samp], 1, mean)
+symbols(t(mu.map), circles = sigma.map, lty = 2, add = TRUE)
+
+G <- graph_from_adjacency_matrix(A
+                                 , mode = "undirected"
+                                 , add.rownames = TRUE)
+plot(G, vertex.color = clusters)
 
 ##### d = 3
-#Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , samp], 1, mean))
-Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , ], 1, mean))
+Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , samp], 1, mean))
 clusters <- kmeans(t(Z.map), Nk)$cluster
 plot3d(t(Z.map), col = clusters)
 
@@ -55,23 +80,6 @@ colnames(A)[clusters == 2]
 colnames(A)[clusters == 3]
 colnames(A)[clusters == 4]
 colnames(A)[clusters == 5]
-
-##### d = 2
-# plot(res$Z[4, 1, ], type = "l")
-
-Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , samp], 1, mean))
-plot(Z.map[1, ] ~ Z.map[2, ])
-mu.map <- sapply(1:Nk, FUN = function(i) apply(res$mu[i, , samp], 1, mean))
-points(t(mu.map), pch = 3)
-
-clusters <- kmeans(t(Z.map), Nk)$cluster
-colnames(A)[clusters == 1]
-colnames(A)[clusters == 2]
-colnames(A)[clusters == 3]
-G <- graph_from_adjacency_matrix(A
-                                 , mode = "undirected"
-                                 , add.rownames = TRUE)
-plot(G, vertex.color = clusters)
 
 # ns = 50000, burn = 20000, thin by 10, 2 clusters
 # Starks vs
