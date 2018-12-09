@@ -1,3 +1,3 @@
 # Latent-Network-Models
 
-Let's put a network here. That would be cool.
+[[https://github.com/njosephs/Latent-Network-Models/blob/master/Final%20Report/report_figures/graph_p_clust_weighted.png]]
