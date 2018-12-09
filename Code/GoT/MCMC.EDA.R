@@ -1,8 +1,8 @@
 library(rgl)
 library(igraph)
 
-load("./Desktop/GitHub/Latent-Network-Models/Data/A.Rdata")
-source("./Desktop/GitHub/Latent-Network-Models/Code/GoT/LNM.MCMC.R")
+load("~/Documents/GitHub/Latent-Network-Models/Data/A.Rdata")
+source("~/Documents/GitHub/Latent-Network-Models/Code/GoT/LNM.MCMC.R")
 
 mcmc_array <- function (ns, nchains, params) {
   nparams <- length(params)
@@ -12,11 +12,11 @@ mcmc_array <- function (ns, nchains, params) {
                         parameters = params))
 }
 
-ns <- 50000
-burn <- 20000
+ns <- 5000
+burn <- 1000
 Nv <- nrow(A)
-Nk <- 4
-d <- 3
+Nk <- 3
+d <- 2
 # nchains <- 1
 # params <- c(paste0("mu", 1:Nk)
 #             , paste0("sigma", 1:Nk)
@@ -31,10 +31,11 @@ d <- 3
 
 set.seed(589)
 res <- LNM.MCMC(A, Nk = Nk, d = d, ns = ns)
-samp <- seq(burn, ns, 10)
+samp <- seq(burn, ns, 10) #thinning
 
 ##### d = 3
-Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , samp], 1, mean))
+#Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , samp], 1, mean))
+Z.map <- sapply(1:Nv, FUN = function(i) apply(res$Z[i, , ], 1, mean))
 clusters <- kmeans(t(Z.map), Nk)$cluster
 plot3d(t(Z.map), col = clusters)
 
@@ -67,12 +68,20 @@ clusters <- kmeans(t(Z.map), Nk)$cluster
 colnames(A)[clusters == 1]
 colnames(A)[clusters == 2]
 colnames(A)[clusters == 3]
+G <- graph_from_adjacency_matrix(A
+                                 , mode = "undirected"
+                                 , add.rownames = TRUE)
+plot(G, vertex.color = clusters)
 
 # ns = 50000, burn = 20000, thin by 10, 2 clusters
 # Starks vs
 
 ##### Nk = 2
-K.probs <- apply(res$K[, ] - 1, 1, mean)
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+K.probs <- apply(res$K[, ] - 1, 1, Mode)
 plot(sort(K.probs))
 
 Z.conf <- ifelse(K.probs < .495, 1, ifelse(K.probs > .505, 2, "unsure"))
