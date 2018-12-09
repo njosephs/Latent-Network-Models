@@ -126,32 +126,33 @@ grid.arrange(p1,p1, ncol = 1)
 #
 #----------------------------------------
 
-
+library(rgl)
 spectral_clust <- function(S, d, k = 4){
   sqrtD <- diag(1/sqrt(rowSums(S)))
   Lsym <- diag(rep(1, nrow(S))) - tcrossprod(crossprod(sqrtD, S), sqrtD)
   ES <- eigen(Lsym)
   coord <- (ES$vectors[,order(ES$values)])[,2:(d+1)]
   km <- kmeans(coord, k)
-  km$cluster
+  list(groups = km$cluster, coord = coord)
 }
 
 G <- graph_from_adjacency_matrix(P, 
                                  weighted = TRUE, 
                                  mode = "undirected", 
                                  add.rownames = TRUE)
-groups <- spectral_clust(P, d = 3, k = 4)
-plot(G, vertex.color = groups)
+sc <- spectral_clust(P, d = 3, k = 4)
+plot3d(sc$coord, col = sc$groups)
+plot(G, vertex.color = sc$groups)
 
 G <- graph_from_adjacency_matrix(D, 
                                  weighted = TRUE, 
                                  mode = "undirected", 
                                  add.rownames = TRUE)
-groups <- spectral_clust(D, 2, k = 3)
-plot(G, vertex.color = groups)
+sc <- spectral_clust(D, d = 3, k = 4)
+plot3d(sc$coord, col = sc$groups)
+plot(G, vertex.color = sc$groups)
 
 
-library(rgl)
-plot3d(coord, col = groups)
+
 
 
