@@ -1,0 +1,182 @@
+\documentclass[handout]{beamer}
+%\documentclass{beamer}
+\usepackage{tikz}
+\usepackage{multicol}
+\usepackage{lmodern}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+
+\usetheme{CambridgeUS}
+\graphicspath{{../final_report/report_figures/}}
+
+\makeatletter
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.7\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor~~\beamer@ifempty{\insertshortinstitute}{}{(\insertshortinstitute)}
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertshorttitle{}
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\makeatother
+\title{Latent Networks Models}
+\subtitle{Game of Thrones}
+\author{Lily Chou, Ben Draves, Nathan Josephs, Kelly Kung\inst{1}}
+\date{December 12, 2018}
+\institute[Boston University] 
+{\inst{1}%
+  Department of Mathematics and Statistics\\
+  Boston University
+  }
+\date{\today}
+\subject{Latent Vector Network Models}
+
+\begin{document}
+
+
+%-------------------------------------------------
+%
+%           Introduction + Background
+%
+%-------------------------------------------------
+\begin{frame}
+  \titlepage
+\end{frame}
+\begin{frame}
+\frametitle{Overview}
+\tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+
+%-------------------------------------------------
+%
+%           Model Section
+%
+%-------------------------------------------------
+
+\section{Latent Network Model}
+
+
+%-------------------------------------------------
+%
+%           Expectation Maximization
+%
+%-------------------------------------------------
+
+\section{Expectaction Maximimation}
+
+
+\subsection{Unweighted Network Model}
+
+
+\subsection{Weighted Network Model}
+
+\begin{frame}{Weighted Network Model}
+Let $Y_{ij}$ be the weight on edge $E_{ij}\in \mathbf{E}$.     
+    \begin{align*}
+    Y_{ij} | \lambda_{ij} &\overset{ind}\sim \text{Pois}(\lambda_{ij}) \\
+    \lambda_{ij} &\overset{iid}\sim \text{Gamma}(\alpha, \beta)
+\end{align*}
+Then the log-likelihood for this model can be written as 
+\begin{align*}
+l(\lambda, \alpha, \beta ; Y) &= \sum_{i<j}\Big\{ \log \lambda_{ij}\big(Y_{ij} + \alpha - 1) - \lambda_{ij}(1+ \beta)\\
+ &-\log(Y_{ij}!) + \alpha \log(\beta) - \log \Gamma(\alpha)\Big\}
+\end{align*}
+\end{frame}
+
+\begin{frame}{Weighted Network Model: E-Step}
+Taking an expectation of this log-likelihood given the data $\mathbf{Y}$ and parameters $\theta = (\alpha, \beta)$ 
+\begin{align*}
+Q(\theta; \theta^{(t)})  &= \sum_{i<j}\Big\{ (Y_{ij}+ \alpha - 1)\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] \\
+    &- (1+ \beta)\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}}\big[\lambda_{ij}\big] -\log(Y_{ij}!) + \alpha \log(\beta) - \log \Gamma(\alpha)\Big\}
+\end{align*}\pause
+
+Seeing as $\lambda_{ij}|Y_{ij}, \theta \propto \text{Gamma}(\alpha + Y_{ij}, \beta + 1)$  we can define 
+
+\begin{align*}
+\pi_{ij} &\equiv \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta}\big[\lambda_{ij} \big] = \frac{\alpha + Y_{ij}}{1+ \beta} \\
+\eta_{ij} &\equiv \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta}\big[\log \lambda_{ij} \big] = \log(1 + \beta) + \Psi (\alpha + Y_{ij})
+\end{align*}
+
+\end{frame}
+
+\begin{frame}{Weighted Network Model: M-Step}
+Maximizing $Q(\theta, \theta^{(t)})$ with respect to $\theta$, we see that $\theta^{(t+1)}$ must satisfy 
+\begin{align*}
+\beta^{(t+1)} &= \frac{\binom{n}{2}}{\sum_{i<j}\pi_{ij}}\alpha^{(t+1)}\\
+\Psi(\alpha^{(t+1)}) &= \frac{\sum_{i<j} \eta_{ij} + \binom{n}{2} \log(\beta^{(t+1)})}{\binom{n}{2}} 
+\end{align*}
+We first update $\beta^{(t+1)}$ using $\alpha^{(t)}$ then use Netwon-Raphson to attain $\theta^{(t+1)}$. 
+\end{frame}
+
+\begin{frame}{Weighted Network Model: Psuedo-Code}
+\begin{center}
+\scalebox{.9}{  
+    \begin{algorithm*}[H]
+        \SetKwInOut{Input}{Input}
+        \SetKwInOut{Output}{Output}
+        \underline{LNM EM} $(G, tol)$\;
+        \Input{Graph $G$ \\ Tolerance $tol$}
+        \Output{Nuisance Parameters $\alpha^*$, $\beta^*$ \\ Latent Mean Estimates $\hat{\lambda}$ \\ Latent Distance Estimates $\hat{d}$}
+        Initialize $Q^{(0)}$
+        \Repeat{$\vert\frac{Q(\theta^{(t+1)}, \theta^{(t)}) - Q(\theta^{(t)}, \theta^{(t)})}{Q(\theta^{(t)}, \theta^{(t)})}\vert < tol$}{
+         \textbf{E:} calculate $\pi^{(t)}$, $\eta^{(t)}$\;
+         \textbf{M:}
+         update $\beta^{(t+1)}$ using ($\beta_W$)\;
+         update $\alpha^{(t+1)}$ using ($\alpha_W$)\;
+         calculate $Q(\theta, \theta^{(t+1)})$ 
+         }
+         \Return $\alpha^*$, $\beta^*$, $\hat{\lambda} = \pi^*$, $\hat{d} = \frac{1}{\pi^*}$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
+        \caption{EM for simplified latent network weighted model}
+    \end{algorithm*}
+}
+\end{center}
+\end{frame}
+
+%-------------------------------------------------
+%
+%           Markov Chain Monte Carlo
+%
+%-------------------------------------------------
+
+
+\section{Markov Chain Monte Carlo}
+
+
+%-------------------------------------------------
+%
+%           Model Comparisons + Inference
+%
+%-------------------------------------------------
+
+
+\section{Model Comparison \& Inference}
+
+
+%-------------------------------------------------
+%
+%           Conclusion + Future Work
+%
+%-------------------------------------------------
+
+
+\section{Conclusion \& Future Work}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
