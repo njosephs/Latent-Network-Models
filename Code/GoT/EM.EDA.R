@@ -265,7 +265,7 @@ p <- plot_ly(eigenvec, x = ~oned, y = ~twod, z = ~threed,
                       zaxis = list(title = 'z')), 
          showlegend = FALSE) 
 p
-chart_link = api_create(p, filename="three_d_P")
+chart_link = api_create(p, filename="three_d_D")
 chart_link
 
 
