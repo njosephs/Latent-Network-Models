@@ -27,7 +27,7 @@
 \author{Lily Chou, Ben Draves, Nathan Josephs, Kelly Kung}
 \date{December 12, 2018}
 \institute[Boston University] 
-{\inst{1}%
+{
   Department of Mathematics and Statistics\\
   Boston University
   }
@@ -60,7 +60,40 @@
 %-------------------------------------------------
 
 \section{Latent Network Model}
+\begin{frame}{Latent Network Model}
+Using Hoff's work, we model the presence of an edge given our latent variables as
+\[\text{logit} \ \mathbb{P}(Y_{ij} = 1|Z) = ||Z_i - Z_j|| + \epsilon_{ij}\]
 
+where $||Z_i - Z_j||$ is the latent distance between nodes $i$ and $j$ and 
+\[Z_i \overset{ind}{\sim}\sum_{k=1}^G \lambda_k\text{MVN}_d(\mu_k,\sigma_k^2I_d)\]
+
+\end{frame}
+
+\begin{frame}{Latent Network Model: Priors}
+\begin{align*}
+Y_{ij} | Z_i, Z_j &\overset{ind}\sim \text{Bern}\Big[\text{logit}^{-1}\big(\Vert Z_i - Z_j \Vert\big)\Big] \\
+Z_i | K_i = k_i &\overset{ind}\sim MVN(\mu_{k_i}, \sigma_{k_i}^2 I_d) \\
+K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
+\lambda_k &\overset{iid}\sim \frac{1}{G} \\
+\mu_k &\overset{iid}\sim \text{MVN}_d(0, I_2) \\
+\sigma_k^2 &\overset{iid}\sim \text{Inv} \chi^2_1
+\end{align*}
+\end{frame}
+
+\begingroup
+\small
+\begin{frame}{Latent Network Model: Likelihood}
+\begin{align*}
+\onslide<1->{\mathcal{L}(Z, \theta; Y) &= \prod_{i<j}\mathbb{P}(Y_{ij} | Z_i, Z_j) \mathbb{P}(Z_i | K_i, \mu_{k_i}, \sigma_{k_i}^2) \mathbb{P}(Z_j | K_j, \mu_{k_j}, \sigma_j^2) \\ 
+&\ \ \ \ \ \ \ \ \times  \mathbb{P}(K_i | \lambda_i) \mathbb{P}(\lambda_i)\mathbb{P}(\mu_{k_i})\mathbb{P}(\sigma_{k_i}^2)\mathbb{P}(K_j)\mathbb{P}(\mu_{k_j})\mathbb{P}(\sigma_{k_j}^2) \\}
+\onslide<2->{&\propto \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
+& \times \frac{1}{(\sigma_{k_i}^2)^{1/2}}\exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\} \enspace \frac{1}{(\sigma_{k_j}^2)^{1/2}}\\
+&\times\exp\Big\{-\frac{1}{2\sigma_{k_j}^2}(Z_j - \mu_{k_j})^T (Z_j - \mu_{k_j})\Big\}  \exp\Big\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\Big\}\\
+&\times \exp\Big\{-\frac{1}{2}\mu_{k_j}^T\mu_{k_j}\Big\}  \times \frac{1}{(\sigma_{k_i}^2)^2}\exp\Big\{-\frac{1}{\sigma_{k_i}^2}\Big\}\frac{1}{(\sigma_{k_j}^2)^2}\exp\Big\{-\frac{1}{\sigma_{k_j}^2}\Big\} \\
+&\times \lambda_i \times \lambda_j}
+\end{align*}
+\end{frame}
+\endgroup
 
 %-------------------------------------------------
 %
@@ -72,8 +105,75 @@
 
 
 \subsection{Unweighted Network Model}
+\begin{frame}{Unweighted Network Model}
+Let $Y_{ij}$ indicate whether there is an edge $E_{ij}$ between nodes $i$ and $j$.
+\begin{align*}
+Y_{ij} | p_{ij} &\overset{ind}\sim \text{Bern}(p_{ij}) \\
+p_{ij} &\overset{iid}\sim \text{Beta}(\alpha, \beta)
+\end{align*}
+where $p_{ij} \equiv 2-2*\text{logit}^{-1} (d_{ij})$. \newline
 
+Then the log-likelihood for this model can be written as
+\begin{align*}
+l(p, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{p_{ij}}{1 - p_{ij}}\Big) + \log(1-p_{ij})  + \log \Gamma(\alpha + \beta) \\
+&- \log \Gamma(\alpha) - \log \Gamma(\beta) + (\alpha - 1)\log p_{ij} + (\beta - 1)\log(1 - p_{ij})
+\end{align*}
+\end{frame}
 
+\begin{frame}{Unweighted Network Model: E-Step}
+We can take the expectation of the log-likelihood given the data \textbf{Y} and parameters $\theta = (\alpha, \beta)$
+\begin{align*}
+Q\big(\theta; \theta^{(t)}\big) &= \sum_{i<j} (Y_{ij} + \alpha - 1) \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} [\log  p_{ij}] \\
+&+ (\beta -Y_{ij}) \mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1-p_{ij})\big] + \log \Gamma(\alpha + \beta) \\
+&- \log \Gamma(\alpha) - \log \Gamma(\beta) 
+\end{align*}
+
+Since $p_{ij}|Y_{ij}, \theta \propto Beta(\alpha + Y_{ij}, \beta + 1 - Y_{ij})$, we define the following 
+\begin{align*}
+\pi_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} \big[\log p_{ij}\big] = \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\
+\eta_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} \big[\log (1 - p_{ij})\big] = \Psi\Big(\beta + 1 - Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big)
+\end{align*}
+\end{frame}
+
+\begin{frame}{Unweighted Network Model: M-Step}
+To maximize, $Q(\theta, \theta^{(t)})$ with respect to $\theta$, we see that $\theta^{(t+1)}$ must satisfy the following:
+\begin{align*}
+\Psi\Big(\alpha^{(t+1)} + \beta^{(t)}\Big) - \Psi(\alpha^{(t+1)}) &= -\frac{\sum_{i<n}\mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log p_{ij}\big]}{{n \choose 2}} \tag{$\alpha_U$}\\
+\Psi\Big(\alpha^{(t+1)} + \beta^{(t+1)}\Big) - \Psi(\beta^{(t+1)}) &= -\frac{\sum_{i<n}\mathbb{E}_{p_{ij} | Y_{ij}, \theta^{(t)}} \big[\log (1 - p_{ij})\big]}{{n \choose 2}} \tag{$\beta_U$}
+\end{align*}
+
+Here, we use Newton-Raphson to obtain both $\alpha^{(t+1)}$ and $\beta^{(t+1)}$.
+\end{frame}
+
+\begin{frame}{Unweighted Network Model: Pseudocode}
+\begin{center}
+\scalebox{.9}{  
+    \begin{algorithm*}[H]
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \underline{LNM EM} $(G, tol)$\;
+    \Input{Graph $G$ \\ Tolerance $tol$}
+    \Output{Nuisance Parameters $\alpha^*$, $\beta^*$ \\ Latent Probability Estimates $\hat{p}$ \\ Latent Distance Estimates $\hat{d}$}
+    Initialize $Q^{(0)}$
+    \Repeat{$\vert\frac{Q(\theta^{(t+1)}, \theta^{(t)}) - Q(\theta^{(t)}, \theta^{(t)})}{Q(\theta^{(t)}, \theta^{(t)})}\vert < tol$}{
+     \textbf{E:} calculate $\pi^{(t)}$, $\eta^{(t)}$\;
+     \textbf{M:}
+     update $\alpha^{(t+1)}$ using ($\alpha_U$)\;
+     update $\beta^{(t+1)}$ using ($\beta_U$)\;
+
+     calculate $Q(\theta, \theta^{(t+1)})$ 
+     }
+     \Return $\alpha^*$, $\beta^*$, $\hat{p} =  e^{\pi^*}$, $\hat{d} = logit^{-1}(1 - \frac{e^{\pi^*}}{2})$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
+    \caption{EM for simplified latent network unweighted model}
+\end{algorithm*}
+
+}
+\end{center}
+\end{frame}
+
+\begin{frame}{Unweighted Network Model: Heat Maps}
+
+\end{frame}
 \subsection{Weighted Network Model}
 
 \begin{frame}{Weighted Network Model}

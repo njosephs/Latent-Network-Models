@@ -94,7 +94,7 @@ We first fit an unweighted model on the presence of an edge in the network, whic
 Y_{ij} | p_{ij} &\overset{ind}\sim \text{Bern}(p_{ij}) \\
 p_{ij} &\overset{iid}\sim \text{Beta}(\alpha, \beta)
 \end{align*}
-where we $p_{ij} \equiv 2-2*\text{logit}^{-1} (d_{ij}) $ where $d_{ij}$ are latent distances defined in Section \ref{Model Formulation} and are calculated by $d_{ij} = logit(1 - \frac{p_{ij}}{2})$. We define $p_{ij}$ in this manner to ensure that higher probabilities result in smaller distances and smaller probabilties result in greater distances. Then the likelihoods are 
+where we define $p_{ij} \equiv 2-2*\text{logit}^{-1} (d_{ij}) $ where $d_{ij}$ are latent distances defined in Section \ref{Model Formulation} and are calculated by $d_{ij} = logit(1 - \frac{p_{ij}}{2})$. We define $p_{ij}$ in this manner to ensure that higher probabilities result in smaller distances and lower probabilities result in greater distances. Then the likelihoods are 
 
 \begin{align*}
 \mathcal{L}(p, \alpha, \beta; Y) &= \prod_{i<j}p_{ij}^{Y_{ij}}\big(1 - p_{ij}\big)^{1 - Y_{ij}} \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}p_{ij}^{\alpha - 1}\big(1-p_{ij}\big)^{\beta - 1} \\
