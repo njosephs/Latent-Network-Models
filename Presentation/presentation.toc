@@ -2,4 +2,4 @@
 \beamer@sectionintoc {2}{Latent Network Model}{3}{0}{2}
 \beamer@sectionintoc {3}{Expectaction Maximimation}{6}{0}{3}
 \beamer@subsectionintoc {3}{1}{Unweighted Network Model}{6}{0}{3}
-\beamer@subsectionintoc {3}{2}{Weighted Network Model}{11}{0}{3}
+\beamer@subsectionintoc {3}{2}{Weighted Network Model}{12}{0}{3}
