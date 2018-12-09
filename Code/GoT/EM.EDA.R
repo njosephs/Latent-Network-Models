@@ -33,10 +33,11 @@ layout <- layout_with_dh(G)
 pdf("./Final Report/report_figures/graph_dist_unweighted.pdf")
 plot(G 
      , vertex.size = degree(G)
+     , vertex.label.color = "white"
      , edge.width = log(E(G)$weight)
      , layout = layout
      , color = "grey86"
-     , vertex.color = adjustcolor("green", alpha.f = .75)
+     , vertex.color = adjustcolor("blue", alpha.f = .75)
      , curved = 200)
 dev.off()
 
@@ -70,7 +71,7 @@ pdf("./Final Report/report_figures/heatmap_dist_unweighted.pdf")
 ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
   geom_tile()+
   geom_tile(color = "white")+
-  scale_fill_gradient2(low = "blue", high = "white", mid = "red", midpoint = 0)+
+  scale_fill_gradient2(low = "red", high = "white", mid = "blue", midpoint = 0)+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   labs(x = "Character Names",
        y = "Character Names", 
@@ -103,8 +104,14 @@ load("./Data/W.Rdata")
 #run EM
 em <- LNM.EM.W(W)
 
-#plot density
-plot(density(em$d[em$d < 5]))
+#Density plots
+ggplot(data.frame(Distance = em$d[em$d <5]), aes(x=Distance)) + 
+  geom_density(color="blue", 
+               fill="lightblue", 
+               alpha = .7)
+
+
+
 
 D <- matrix(NA, nrow = nrow(W), ncol = ncol(W))
 D[upper.tri(D)] <- em$d
