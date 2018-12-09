@@ -175,15 +175,15 @@ Algorithm \ref{EM_alg_unweighted} shows the algorithm for the Unweighted Model.
     \Output{Nuisance Parameters $\alpha^*$, $\beta^*$ \\ Latent Probability Estimates $\hat{p}$ \\ Latent Distance Estimates $\hat{d}$}
     Initialize $Q^{(0)}$
     \Repeat{$\vert\frac{Q(\theta^{(t+1)}, \theta^{(t)}) - Q(\theta^{(t)}, \theta^{(t)})}{Q(\theta^{(t)}, \theta^{(t)})}\vert < tol$}{
-     \textbf{E:} calculate $\pi^{(t)}$, $\eta^{(t)}$, $\varphi^{(t)}$\;
+     \textbf{E:} calculate $\pi^{(t)}$, $\eta^{(t)}$\;
      \textbf{M:}
      update $\alpha^{(t+1)}$ using ($\alpha_U$)\;
      update $\beta^{(t+1)}$ using ($\beta_U$)\;
 
      calculate $Q(\theta, \theta^{(t+1)})$ 
      }
-     \Return $\alpha^*$, $\beta^*$, $\hat{p} = \pi^*$, $\hat{d} = logit^{-1}(1 - \frac{\pi^*}{2})$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
-    \caption{EM for simplified latent network unweighted model...}
+     \Return $\alpha^*$, $\beta^*$, $\hat{p} =  e^{\pi^*}$, $\hat{d} = logit^{-1}(1 - \frac{e^{\pi^*}}{2})$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
+    \caption{EM for simplified latent network unweighted model}
 \end{algorithm*}
 
 \subsubsection{Weighted Model}
