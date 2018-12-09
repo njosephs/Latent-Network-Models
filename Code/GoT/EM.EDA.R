@@ -4,13 +4,14 @@
 #
 #----------------------------------------
 
-
-#load up files + libraries
+#load up files + libraries---------------
 library(ggplot2)
 library(gplots)
 load("./Data/A.Rdata")
 load("./Data/W.Rdata")
 source("./Code/GoT/LNM.EM.R")
+
+set.seed(1985)
 
 #run EM
 em <- LNM.EM.U(A)
@@ -20,22 +21,7 @@ knitr::kable(data.frame(Alpha = em$alpha, Beta = em$beta))
 table(em$pi)
 table(em$d)
 
-#plot posterior distribution
-df <- data.frame(
-  x = rep(seq(0.01, .99, length.out = 1000),2), 
-  y = c(dbeta(seq(0.01, .99, length.out = 1000), shape1=em$alpha, shape2=em$beta),
-        dbeta(seq(0.01, .99, length.out = 1000), shape= 1, shape2= 1)),
-  group = c(rep("Estimated Distribution", 1000), rep("Prior", 1000))
-  )
-
-p1 <- ggplot(df, aes(x = x, y = y, col = group))+
-        geom_line()+
-        labs(ylab = "Cumulative Beta Density", 
-            xlab = "x", 
-            title = "EM Esimates for p Density")+
-      theme_minimal()
-p1
-
+#Plot distance network + heatmap
 D <- matrix(NA, nrow = nrow(A), ncol = ncol(A))
 D[upper.tri(D)] <- em$d
 D[lower.tri(D)] <- t(D)[lower.tri(D)] 
@@ -47,6 +33,7 @@ G <- graph_from_adjacency_matrix(D,
                                  mode = "undirected", 
                                  add.rownames = TRUE)
 V(G)$label.cex <-  strength(G) / max(strength(G))
+pdf("./figures/graph_dist_unweighted.pdf")
 plot(G 
      #, vertex.size = strength(G) 
      , edge.width = log(E(G)$weight)
@@ -55,6 +42,7 @@ plot(G
      , color = "grey86"
      , vertex.color = "lightgreen"
      , curved = 200)
+dev.off()
 
 P <- matrix(NA, nrow = nrow(A), ncol = ncol(A))
 P[upper.tri(P)] <- em$p
@@ -67,7 +55,6 @@ G <- graph_from_adjacency_matrix(P,
                                  mode = "undirected", 
                                  add.rownames = TRUE)
 
-V(G)$label.cex <-  strength(G) / max(strength(G))
 plot(G 
      , vertex.size = 2 * strength(G)
      , edge.width = E(G)$weight
