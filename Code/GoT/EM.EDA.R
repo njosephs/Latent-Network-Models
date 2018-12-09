@@ -250,11 +250,13 @@ spectral_clust <- function(S, d, k = 4){
 sc <- spectral_clust(P, d = 3, k = 4)
 eigenvec <- data.frame(sc$coord)
 colnames(eigenvec) <- c("oned", "twod", "threed")
-p <- plot_ly(eigenvec, x = ~oned, y = ~twod, z = ~threed, color = sc$groups) %>%
+p <- plot_ly(eigenvec, x = ~oned, y = ~twod, z = ~threed, color = as.factor(sc$groups/4)) %>%
   add_markers() %>%
-  layout(scene = list(xaxis = list(title = 'x'),
+  layout(title = "Plot of Eigenvectors for Pi",
+           scene = list(xaxis = list(title = 'x'),
                       yaxis = list(title = 'y'),
-                      zaxis = list(title = 'z')))
+                      zaxis = list(title = 'z')),
+         showlegend = FALSE)
 p
 chart_link = api_create(p, filename="three_d_P")
 #chart_link
@@ -285,7 +287,8 @@ colnames(eigenvec)<-c("oned", "twod", "threed")
 p <- plot_ly(eigenvec, x = ~oned, y = ~twod, z = ~threed,
              color = as.factor(sc$groups/4)) %>%
   add_markers() %>%
-  layout(scene = list(xaxis = list(title = 'x'),
+  layout(title = "Plot of Eigenvectors for Distance",
+         scene = list(xaxis = list(title = 'x'),
                       yaxis = list(title = 'y'),
                       zaxis = list(title = 'z')), 
          showlegend = FALSE) 
