@@ -8,18 +8,12 @@
 library(ggplot2)
 library(gplots)
 load("./Data/A.Rdata")
-load("./Data/W.Rdata")
 source("./Code/GoT/LNM.EM.R")
 
 set.seed(1985)
 
 #run EM
 em <- LNM.EM.U(A)
-
-#EM tables 
-knitr::kable(data.frame(Alpha = em$alpha, Beta = em$beta))
-table(em$pi)
-table(em$d)
 
 #Plot distance network + heatmap
 D <- matrix(NA, nrow = nrow(A), ncol = ncol(A))
@@ -32,12 +26,14 @@ G <- graph_from_adjacency_matrix(D,
                                  weighted = TRUE, 
                                  mode = "undirected", 
                                  add.rownames = TRUE)
+
 V(G)$label.cex <-  strength(G) / max(strength(G))
+layout <- layout_with_dh(G)
+
 pdf("./figures/graph_dist_unweighted.pdf")
 plot(G 
      #, vertex.size = strength(G) 
      , edge.width = log(E(G)$weight)
-     #, layout = layout.circle(G)
      , layout = layout_with_dh(G)
      , color = "grey86"
      , vertex.color = "lightgreen"
@@ -73,6 +69,9 @@ plot(G
 #             EM Weighted EDA
 #
 #----------------------------------------
+
+#load data 
+load("./Data/W.Rdata")
 
 #run EM
 em <- LNM.EM.W(W)
