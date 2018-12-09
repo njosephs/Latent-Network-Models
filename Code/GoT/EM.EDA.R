@@ -15,7 +15,7 @@ set.seed(1985)
 #run EM
 em <- LNM.EM.U(A)
 
-#Plot distance network + heatmap
+#Plot Networks
 D <- matrix(NA, nrow = nrow(A), ncol = ncol(A))
 D[upper.tri(D)] <- em$d
 D[lower.tri(D)] <- t(D)[lower.tri(D)] 
@@ -27,7 +27,7 @@ G <- graph_from_adjacency_matrix(D,
                                  mode = "undirected", 
                                  add.rownames = TRUE)
 
-V(G)$label.cex <-  degree(G)/(max(degree(G)))
+V(G)$label.cex <-  degree(G)/(2 *max(degree(G)))
 layout <- layout_with_dh(G)
 
 pdf("./Final Report/report_figures/graph_dist_unweighted.pdf")
@@ -61,6 +61,33 @@ plot(G
      , color = "grey86"
      , vertex.color = adjustcolor("red", alpha.f = .75)
      , curved = 200)
+dev.off()
+
+#Plot heatmps
+df <- melt(D)
+
+pdf("./Final Report/report_figures/heatmap_dist_unweighted.pdf")
+ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile()+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "white", mid = "red", midpoint = 0)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "Character Names",
+       y = "Character Names", 
+       fill = "Distance")
+dev.off()
+
+df <- melt(P)
+
+pdf("./Final Report/report_figures/heatmap_p_unweighted.pdf")
+ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile()+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "Character Names",
+       y = "Character Names", 
+       fill = "Probabilities")
 dev.off()
 
 
@@ -101,7 +128,7 @@ p2<- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) +
   geom_tile()+
   geom_tile(color = "white")+
   scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
-                       midpoint = 0,) 
+                       midpoint = 0) 
 p2
 grid.arrange(p1,p1, ncol = 1)
 
