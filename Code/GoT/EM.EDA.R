@@ -241,6 +241,9 @@ p <- plot_ly(eigenvec, x = ~oned, y = ~twod, z = ~threed, color = sc$groups) %>%
                       yaxis = list(title = 'y'),
                       zaxis = list(title = 'z')))
 p
+chart_link = api_create(p, filename="three_d_P")
+chart_link
+
 
 plot(G, vertex.color = sc$groups)
 
@@ -262,4 +265,7 @@ p <- plot_ly(eigenvec, x = ~oned, y = ~twod, z = ~threed,
                       zaxis = list(title = 'z')), 
          showlegend = FALSE) 
 p
+chart_link = api_create(p, filename="three_d_P")
+chart_link
+
 
