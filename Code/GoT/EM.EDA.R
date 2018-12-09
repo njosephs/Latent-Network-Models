@@ -7,9 +7,6 @@
 #load up files + libraries---------------
 library(ggplot2)
 library(gplots)
-library(reshape2)
-library(igraph)
-library(gridExtra)
 load("./Data/A.Rdata")
 source("./Code/GoT/LNM.EM.R")
 
@@ -163,17 +160,15 @@ pdf("./Final Report/report_figures/graph_p_weighted.pdf")
 plot(G 
      , vertex.size = degree(G)
      , vertex.label.color = "black"
-     , edge.width = E(G)$weight
+     , edge.width = log(E(G)$weight)
      , layout = layout
      , color = "grey86"
      , vertex.color = adjustcolor("red", alpha.f = .75)
      , curved = 200)
 dev.off()
 
-
 df <- melt(D)
-pdf("./Final Report/report_figures/heatmap_dist_weighted.pdf")
-ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+p1 <- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
   geom_tile()+
   geom_tile(color = "white")+
   scale_fill_gradient2(low = "blue", high = "white", mid = "lightblue")+
@@ -181,11 +176,13 @@ ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) +
   labs(x = "Character Names",
        y = "Character Names", 
        fill = "Distance")
+
+pdf("./Final Report/report_figures/heatmap_dist_weighted.pdf")
+p1
 dev.off()
 
 df <- melt(P)
-pdf("./Final Report/report_figures/heatmap_p_weighted.pdf")
-ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+p2 <- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
   geom_tile()+
   geom_tile(color = "white")+
   scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0)+
@@ -193,12 +190,13 @@ ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) +
   labs(x = "Character Names",
        y = "Character Names", 
        fill = "Mean")
+
+pdf("./Final Report/report_figures/heatmap_p_weighted.pdf")
+p2
 dev.off()
 
-
 df <- melt(W - P)
-pdf("./Final Report/report_figures/heatmap_p_diff_weighted.pdf")
-ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+p3 <- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
   geom_tile()+
   geom_tile(color = "white")+
   scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0)+
@@ -206,8 +204,28 @@ ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) +
   labs(x = "Character Names",
        y = "Character Names", 
        fill = "W - P")
+
+pdf("./Final Report/report_figures/heatmap_p_diff_weighted.pdf")
+p3
 dev.off()
 
+#combo plots
+library(gridExtra)
+
+df <- melt(W)
+p4 <- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile()+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "Character Names",
+       y = "Character Names", 
+       fill = "Obs. Weight")
+
+
+pdf("./Final Report/report_figures/heatmap_comp_weighted.pdf")
+grid.arrange(p4, p2,ncol = 2)
+dev.off()
 
 #----------------------------------------
 #
@@ -228,10 +246,7 @@ spectral_clust <- function(S, d, k = 4){
   list(groups = km$cluster, coord = coord)
 }
 
-G <- graph_from_adjacency_matrix(P, 
-                                 weighted = TRUE, 
-                                 mode = "undirected", 
-                                 add.rownames = TRUE)
+#P Clustering --------------------------
 sc <- spectral_clust(P, d = 3, k = 4)
 eigenvec <- data.frame(sc$coord)
 colnames(eigenvec) <- c("oned", "twod", "threed")
@@ -242,15 +257,25 @@ p <- plot_ly(eigenvec, x = ~oned, y = ~twod, z = ~threed, color = sc$groups) %>%
                       zaxis = list(title = 'z')))
 p
 chart_link = api_create(p, filename="three_d_P")
-chart_link
+#chart_link
 
-
-plot(G, vertex.color = sc$groups)
-
-G <- graph_from_adjacency_matrix(D, 
+G <- graph_from_adjacency_matrix(P, 
                                  weighted = TRUE, 
                                  mode = "undirected", 
                                  add.rownames = TRUE)
+
+V(G)$label.cex <-  degree(G)/(2 *max(degree(G)))
+
+pdf("./Final Report/report_figures/graph_p_clust_weighted.pdf")
+plot(G 
+     , vertex.color = adjustcolor(sc$groups +1, alpha = .5)
+     , vertex.label.color = "black"
+     , edge.width = log(E(G)$weight)
+     , edge.color = adjustcolor("grey86", alpha = .75)
+     , curved = 200)
+dev.off()
+
+#D Clustering --------------------------
 sc <- spectral_clust(D, d = 3, k = 4)
 plot3d(sc$coord, col = sc$groups)
 plot(G, vertex.color = sc$groups)
@@ -266,6 +291,22 @@ p <- plot_ly(eigenvec, x = ~oned, y = ~twod, z = ~threed,
          showlegend = FALSE) 
 p
 chart_link = api_create(p, filename="three_d_D")
-chart_link
+#chart_link
 
+G <- graph_from_adjacency_matrix(D, 
+                                 weighted = TRUE, 
+                                 mode = "undirected", 
+                                 add.rownames = TRUE)
+
+V(G)$label.cex <-  degree(G)/(2 *max(degree(G)))
+
+pdf("./Final Report/report_figures/graph_dist_clust_weighted.pdf")
+plot(G 
+     #, vertex.size = degree(G)
+     , vertex.color = adjustcolor(sc$groups +1, alpha = .5)
+     , vertex.label.color = "black"
+     , edge.width = log(E(G)$weight)
+     , edge.color = adjustcolor("grey86", alpha = .75)
+     , curved = 200)
+dev.off()
 
