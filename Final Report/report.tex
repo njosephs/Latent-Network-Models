@@ -112,7 +112,7 @@ l(p, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{p_{ij}}{1 - p_{ij}}\
 %\end{align*}
 
 
-For the E-step, we observe that the beta distribution is conjugate to the binomial and since the $p_{ij}$ are iid, we have the following likelihood. Note we just suppress our parameters $\theta = \{\alpha, \beta\}$.
+For the E-step, we observe that the beta distribution is conjugate to the binomial and since the $p_{ij}$ only depend on the data through $Y_{ij}$, we have the following likelihood. Note we just suppress our parameters $\theta = \{\alpha, \beta\}$.
 
 \begin{align*}
 p_{ij} | Y_{ij}, \theta &\propto \text{Bern}(p_{ij})\times \text{Beta}(\alpha, \beta)\\
@@ -198,11 +198,11 @@ Y_{ij} | \lambda_{ij} &\overset{ind}\sim \text{Pois}(\lambda_{ij}) \\
 where now, $\lambda_{ij} = \frac{1}{d_{ij}}$ and $d_{ij}$ is defined as above and are calculated by $d_{ij} = \frac{1}{\lambda_{ij}}$. Again, we define $\lambda_{ij}$ in this manner in order to have smaller distances result in higher mean number of interactions and greater distances result in lower mean number of interactions. Thus the likelihood is:
 
 \begin{align*}
-\mathcal{L}(\lambda, \alpha, \beta; Y) &= \prod_{i<j}\frac{\lambda_{ij}^{Y_{ij}}e^{-\lambda_{ij}}}{y_{ij}!} \frac{\beta^{\alpha}}{\Gamma(\alpha)}\lambda_{ij}^{\alpha - 1}e^{-\beta \lambda_{ij}} \\
-l(\lambda, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \lambda_{ij}\big(y_{ij} + \alpha - 1) - \lambda_{ij}(1+ \beta) -\log(Y_{ij}!) + \alpha \log(\beta) - \log \Gamma(\alpha)
+\mathcal{L}(\lambda, \alpha, \beta; Y) &= \prod_{i<j}\frac{\lambda_{ij}^{Y_{ij}}e^{-\lambda_{ij}}}{Y_{ij}!} \frac{\beta^{\alpha}}{\Gamma(\alpha)}\lambda_{ij}^{\alpha - 1}e^{-\beta \lambda_{ij}} \\
+l(\lambda, \alpha, \beta ; Y) &= \sum_{i<j} \log \lambda_{ij}\big(Y_{ij} + \alpha - 1) - \lambda_{ij}(1+ \beta) -\log(Y_{ij}!) + \alpha \log(\beta) - \log \Gamma(\alpha)
 \end{align*}
 
-Since $\lambda_{ij}$ are iid and since the Poisson and Gamma are conjugate, we know that 
+Since $\lambda_{ij}$ only depend on $Y_{ij}$ from the data and since the Poisson and Gamma are conjugate, we know that 
 \begin{align*}
 \lambda_{ij}|Y_{ij}, \theta &\propto Pois(\lambda_{ij}) \times Gamma(\alpha, \beta ) \\
 	&= Gamma(\alpha + Y_{ij}, \beta + 1) \\
@@ -217,7 +217,8 @@ Note we suppress our parameters $\theta = \{\alpha, \beta\}$. From here, we defi
 and we have
 \begin{align*}
 Q(\theta; \theta^{(t)}) &\equiv \mathbb{E}_{\lambda|Y, \theta^{(t)}}\big[l (\lambda; Y, \theta) \big] \\
-	&= \sum_{i<j} (Y_{ij}+ \alpha - 1)\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] - (1+ \beta)\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}}\big[\lambda_{ij}\big] -\log(Y_{ij}!) + \alpha \log(\beta) - \log \Gamma(\alpha)
+	&= \sum_{i<j} (Y_{ij}+ \alpha - 1)\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}} \big[\log \lambda_{ij}\big] \\
+	&- (1+ \beta)\mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta^{(t)}}\big[\lambda_{ij}\big] -\log(Y_{ij}!) + \alpha \log(\beta) - \log \Gamma(\alpha)
 \end{align*}
 
 For the M-step, we take partial derivatives of $Q(\theta; \theta^{(t)})$ with respect to our parameters, and here, we see that we can update $\beta$ directly, but again, we have to use Newton Raphson for the $\alpha$. 
@@ -258,7 +259,7 @@ Algorithm \ref{EM_alg_weighted} shows the algorithm for the Weighted Model.
      calculate $Q(\theta, \theta^{(t+1)})$ 
      }
      \Return $\alpha^*$, $\beta^*$, $\hat{\lambda} = \pi^*$, $\hat{d} = \frac{1}{\pi^*}$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
-    \caption{EM for simplified latent network weighted model...}
+    \caption{EM for simplified latent network weighted model}
 \end{algorithm*}
 
 \subsection{MCMC}\label{MCMC}
