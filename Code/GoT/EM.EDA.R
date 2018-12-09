@@ -93,6 +93,13 @@ em <- LNM.EM.W(W)
 #plot density
 plot(density(em$d[em$d < 5]))
 
+D <- matrix(NA, nrow = nrow(W), ncol = ncol(W))
+D[upper.tri(D)] <- em$d
+D[lower.tri(D)] <- t(D)[lower.tri(D)] 
+diag(D) <- 0
+rownames(D) <- colnames(D) <- rownames(W)
+df <- melt(D)
+
 P <- matrix(NA, nrow = nrow(W), ncol = ncol(W))
 P[upper.tri(P)] <- em$p
 P[lower.tri(P)] <- t(P)[lower.tri(P)] 
@@ -111,4 +118,40 @@ p2<- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) +
                        midpoint = 0,) 
 p2
 grid.arrange(p1,p1, ncol = 1)
+
+
+#----------------------------------------
+#
+#             Spectral clustering
+#
+#----------------------------------------
+
+
+spectral_clust <- function(S, d, k = 4){
+  sqrtD <- diag(1/sqrt(rowSums(S)))
+  Lsym <- diag(rep(1, nrow(S))) - tcrossprod(crossprod(sqrtD, S), sqrtD)
+  ES <- eigen(Lsym)
+  coord <- (ES$vectors[,order(ES$values)])[,2:(d+1)]
+  km <- kmeans(coord, k)
+  km$cluster
+}
+
+G <- graph_from_adjacency_matrix(P, 
+                                 weighted = TRUE, 
+                                 mode = "undirected", 
+                                 add.rownames = TRUE)
+groups <- spectral_clust(P, d = 3, k = 4)
+plot(G, vertex.color = groups)
+
+G <- graph_from_adjacency_matrix(D, 
+                                 weighted = TRUE, 
+                                 mode = "undirected", 
+                                 add.rownames = TRUE)
+groups <- spectral_clust(D, 2, k = 3)
+plot(G, vertex.color = groups)
+
+
+library(rgl)
+plot3d(coord, col = groups)
+
 
