@@ -123,10 +123,24 @@ D[upper.tri(D)] <- em$d
 D[lower.tri(D)] <- t(D)[lower.tri(D)] 
 diag(D) <- 0
 rownames(D) <- colnames(D) <- rownames(W)
-df <- melt(D)
 
+G <- graph_from_adjacency_matrix(D, 
+                                 weighted = TRUE, 
+                                 mode = "undirected", 
+                                 add.rownames = TRUE)
 
+V(G)$label.cex <-  degree(G)/(2 *max(degree(G)))
 
+pdf("./Final Report/report_figures/graph_dist_weighted.pdf")
+plot(G 
+     , vertex.size = degree(G)
+     , vertex.label.color = "black"
+     , edge.width = log(E(G)$weight)
+     , layout = layout
+     , color = "grey86"
+     , vertex.color = adjustcolor("lightblue", alpha.f = .75)
+     , curved = 200)
+dev.off()
 
 
 P <- matrix(NA, nrow = nrow(W), ncol = ncol(W))
@@ -134,19 +148,62 @@ P[upper.tri(P)] <- em$p
 P[lower.tri(P)] <- t(P)[lower.tri(P)] 
 diag(P) <- 0
 rownames(P) <- colnames(P) <- rownames(W)
+
+G <- graph_from_adjacency_matrix(P, 
+                                 weighted = TRUE, 
+                                 mode = "undirected", 
+                                 add.rownames = TRUE)
+
+V(G)$label.cex <-  degree(G)/(2*max(degree(G)))
+
+pdf("./Final Report/report_figures/graph_p_weighted.pdf")
+plot(G 
+     , vertex.size = degree(G)
+     , vertex.label.color = "black"
+     , edge.width = E(G)$weight
+     , layout = layout
+     , color = "grey86"
+     , vertex.color = adjustcolor("red", alpha.f = .75)
+     , curved = 200)
+dev.off()
+
+
+df <- melt(D)
+pdf("./Final Report/report_figures/heatmap_dist_weighted.pdf")
+ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile()+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "white", mid = "lightblue")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "Character Names",
+       y = "Character Names", 
+       fill = "Distance")
+dev.off()
+
 df <- melt(P)
-p1 <- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
-  geom_tile()
+pdf("./Final Report/report_figures/heatmap_p_weighted.pdf")
+ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile()+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "Character Names",
+       y = "Character Names", 
+       fill = "Mean")
+dev.off()
 
 
 df <- melt(W - P)
-p2<- ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
+pdf("./Final Report/report_figures/heatmap_p_diff_weighted.pdf")
+ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
   geom_tile()+
   geom_tile(color = "white")+
-  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
-                       midpoint = 0) 
-p2
-grid.arrange(p1,p1, ncol = 1)
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "Character Names",
+       y = "Character Names", 
+       fill = "W - P")
+dev.off()
 
 
 #----------------------------------------
