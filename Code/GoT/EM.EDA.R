@@ -212,7 +212,6 @@ dev.off()
 #
 #----------------------------------------
 
-library(rgl)
 spectral_clust <- function(S, d, k = 4){
   sqrtD <- diag(1/sqrt(rowSums(S)))
   Lsym <- diag(rep(1, nrow(S))) - tcrossprod(crossprod(sqrtD, S), sqrtD)
@@ -227,7 +226,15 @@ G <- graph_from_adjacency_matrix(P,
                                  mode = "undirected", 
                                  add.rownames = TRUE)
 sc <- spectral_clust(P, d = 3, k = 4)
-plot3d(sc$coord, col = sc$groups)
+test <- data.frame(sc$coord)
+colnames(test) <- c("oned", "twod", "threed")
+p <- plot_ly(test, x = ~oned, y = ~twod, z = ~threed, color = sc$groups) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'x'),
+                      yaxis = list(title = 'y'),
+                      zaxis = list(title = 'z')))
+p
+
 plot(G, vertex.color = sc$groups)
 
 G <- graph_from_adjacency_matrix(D, 
@@ -238,7 +245,14 @@ sc <- spectral_clust(D, d = 3, k = 4)
 plot3d(sc$coord, col = sc$groups)
 plot(G, vertex.color = sc$groups)
 
-
-
-
+test<-data.frame(sc$coord)
+colnames(test)<-c("oned", "twod", "threed")
+p <- plot_ly(test, x = ~oned, y = ~twod, z = ~threed,
+             color = as.factor(sc$groups/4)) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'x'),
+                      yaxis = list(title = 'y'),
+                      zaxis = list(title = 'z')), 
+         showlegend = FALSE) 
+p
 
