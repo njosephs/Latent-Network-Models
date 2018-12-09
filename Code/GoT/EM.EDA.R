@@ -33,11 +33,11 @@ layout <- layout_with_dh(G)
 pdf("./Final Report/report_figures/graph_dist_unweighted.pdf")
 plot(G 
      , vertex.size = degree(G)
-     , vertex.label.color = "white"
+     , vertex.label.color = "black"
      , edge.width = log(E(G)$weight)
      , layout = layout
      , color = "grey86"
-     , vertex.color = adjustcolor("blue", alpha.f = .75)
+     , vertex.color = adjustcolor("lightblue", alpha.f = .75)
      , curved = 200)
 dev.off()
 
@@ -57,6 +57,7 @@ V(G)$label.cex <-  degree(G)/(2*max(degree(G)))
 pdf("./Final Report/report_figures/graph_p_unweighted.pdf")
 plot(G 
      , vertex.size = degree(G)
+     , vertex.label.color = "black"
      , edge.width = E(G)$weight
      , layout = layout
      , color = "grey86"
@@ -71,7 +72,7 @@ pdf("./Final Report/report_figures/heatmap_dist_unweighted.pdf")
 ggplot(data = df, aes(x=Var1, y=Var2, fill=value)) + 
   geom_tile()+
   geom_tile(color = "white")+
-  scale_fill_gradient2(low = "red", high = "white", mid = "blue", midpoint = 0)+
+  scale_fill_gradient2(low = "blue", high = "white", mid = "lightblue")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   labs(x = "Character Names",
        y = "Character Names", 
@@ -105,20 +106,28 @@ load("./Data/W.Rdata")
 em <- LNM.EM.W(W)
 
 #Density plots
-ggplot(data.frame(Distance = em$d[em$d <5]), aes(x=Distance)) + 
-  geom_density(color="blue", 
+pdf("./Final Report/report_figures/density_dist_weighted.pdf")
+ggplot(data.frame(dist = em$d[em$d <5]), aes(x=dist)) + 
+  geom_density(color="grey", 
                fill="lightblue", 
-               alpha = .7)
+               alpha = .7)+
+  theme_minimal()+
+  labs(x = "Latent Distance", 
+       y = "Density", 
+       title = "Non-Zero Distance Distribution")
+dev.off()
 
-
-
-
+#Network Figures
 D <- matrix(NA, nrow = nrow(W), ncol = ncol(W))
 D[upper.tri(D)] <- em$d
 D[lower.tri(D)] <- t(D)[lower.tri(D)] 
 diag(D) <- 0
 rownames(D) <- colnames(D) <- rownames(W)
 df <- melt(D)
+
+
+
+
 
 P <- matrix(NA, nrow = nrow(W), ncol = ncol(W))
 P[upper.tri(P)] <- em$p
