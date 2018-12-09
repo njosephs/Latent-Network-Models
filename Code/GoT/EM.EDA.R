@@ -27,21 +27,21 @@ G <- graph_from_adjacency_matrix(D,
                                  mode = "undirected", 
                                  add.rownames = TRUE)
 
-V(G)$label.cex <-  strength(G) / max(strength(G))
+V(G)$label.cex <-  degree(G)/(max(degree(G)))
 layout <- layout_with_dh(G)
 
-pdf("./figures/graph_dist_unweighted.pdf")
+pdf("./Final Report/report_figures/graph_dist_unweighted.pdf")
 plot(G 
-     , vertex.size = strength(G)/max(strength(G))
+     , vertex.size = degree(G)
      , edge.width = log(E(G)$weight)
-     , layout = layout_with_dh(G)
+     , layout = layout
      , color = "grey86"
-     , vertex.color = "lightgreen"
+     , vertex.color = adjustcolor("green", alpha.f = .75)
      , curved = 200)
 dev.off()
 
 P <- matrix(NA, nrow = nrow(A), ncol = ncol(A))
-P[upper.tri(P)] <- em$p
+P[upper.tri(P)] <- exp(em$pi)
 P[lower.tri(P)] <- t(P)[lower.tri(P)] 
 diag(P) <- 0
 rownames(P) <- colnames(P) <- rownames(A)
@@ -51,18 +51,18 @@ G <- graph_from_adjacency_matrix(P,
                                  mode = "undirected", 
                                  add.rownames = TRUE)
 
-plot(G 
-     , vertex.size = 2 * strength(G)
-     , edge.width = E(G)$weight
-     #, layout = layout.circle(G)
-     , layout = layout_with_dh(G)
-     , color = "grey86"
-     , vertex.color = "lightgreen"
-     , curved = 200)
+V(G)$label.cex <-  degree(G)/(2*max(degree(G)))
 
-# no vertex level specific information 
-# network level inference on distribution of probs of edges 
-# 
+pdf("./Final Report/report_figures/graph_p_unweighted.pdf")
+plot(G 
+     , vertex.size = degree(G)
+     , edge.width = E(G)$weight
+     , layout = layout
+     , color = "grey86"
+     , vertex.color = adjustcolor("red", alpha.f = .75)
+     , curved = 200)
+dev.off()
+
 
 #----------------------------------------
 #
