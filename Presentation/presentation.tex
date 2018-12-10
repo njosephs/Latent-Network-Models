@@ -1,5 +1,5 @@
-\documentclass[handout]{beamer}
-%\documentclass{beamer}
+%\documentclass[handout]{beamer}
+\documentclass{beamer}
 \usepackage{tikz}
 \usepackage{multicol}
 \usepackage{lmodern}
@@ -62,7 +62,7 @@
 \begin{frame}
  \frametitle{Data}
 \begin{enumerate}
-\item Data origin: A Song of Ice and Fire $\cdot$ A storm of Swords
+\item Data origin: \textit{A Song of Ice and Fire} $\cdot$ \textit{A Storm of Swords}
 \item Data form: 352 pairs of characters and the number of interaction between them
 \end{enumerate}
 
@@ -72,7 +72,7 @@ We start our analysis by constructing a Weighted Network $G$:
 \:  $N_V (G)= 107$
 \item Interactions $\rightarrow$ edges   
 \: $N_E (G) = 352$
-\item numbers of interaction $\rightarrow$ Weights on the edge
+\item Number of interactions $\rightarrow$ Weights on the edge
 \end{enumerate}
 \end{frame}
 
@@ -135,7 +135,7 @@ where $||Z_i - Z_j||$ is the latent distance between nodes $i$ and $j$ and
 \begin{frame}{Latent Network Model: Priors}
 \begin{align*}
 Y_{ij} | Z_i, Z_j &\overset{ind}\sim \text{Bern}\Big[\text{logit}^{-1}\big(\Vert Z_i - Z_j \Vert\big)\Big] \\
-Z_i | K_i = k_i &\overset{ind}\sim MVN(\mu_{k_i}, \sigma_{k_i}^2 I_d) \\
+Z_i | K_i = k_i &\overset{ind}\sim MVN_d(\mu_{k_i}, \sigma_{k_i}^2 I_d) \\
 K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
 \lambda_k &\overset{iid}\sim \frac{1}{G} \\
 \mu_k &\overset{iid}\sim \text{MVN}_d(0, I_2) \\
@@ -147,7 +147,7 @@ K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
 \small
 \begin{frame}{Latent Network Model: Likelihood}
 \begin{align*}
-\onslide<1->{\mathcal{L}(Z, \theta; Y) &= \prod_{i<j}\mathbb{P}(Y_{ij} | Z_i, Z_j) \mathbb{P}(Z_i | K_i, \mu_{k_i}, \sigma_{k_i}^2) \mathbb{P}(Z_j | K_j, \mu_{k_j}, \sigma_j^2) \\ 
+\onslide<1->{\mathcal{L}(Z, \theta; Y) &= \prod_{i<j}\mathbb{P}(Y_{ij} | Z_i, Z_j) \mathbb{P}(Z_i | K_i, \mu_{k_i}, \sigma_{k_i}^2) \mathbb{P}(Z_j | K_j, \mu_{k_j}, \sigma_j^2) \\ \pause
 &\ \ \ \ \ \ \ \ \times  \mathbb{P}(K_i | \lambda_i) \mathbb{P}(\lambda_i)\mathbb{P}(\mu_{k_i})\mathbb{P}(\sigma_{k_i}^2)\mathbb{P}(K_j)\mathbb{P}(\mu_{k_j})\mathbb{P}(\sigma_{k_j}^2) \\}
 \onslide<2->{&\propto \prod_{i<j}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
 & \times \frac{1}{(\sigma_{k_i}^2)^{1/2}}\exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\} \enspace \frac{1}{(\sigma_{k_j}^2)^{1/2}}\\
@@ -164,7 +164,7 @@ K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
 %
 %-------------------------------------------------
 
-\section{Expectaction Maximimation}
+\section{Expectation Maximization}
 
 
 \subsection{Unweighted Network Model}
@@ -174,7 +174,7 @@ Let $Y_{ij}$ indicate whether there is an edge $E_{ij}$ between nodes $i$ and $j
 Y_{ij} | p_{ij} &\overset{ind}\sim \text{Bern}(p_{ij}) \\
 p_{ij} &\overset{iid}\sim \text{Beta}(\alpha, \beta)
 \end{align*}
-where $p_{ij} \equiv 2-2*\text{logit}^{-1} (d_{ij})$. \newline
+where $p_{ij} \equiv 2-2*\text{logit}^{-1} (d_{ij})$. \newline\pause 
 
 Then the log-likelihood for this model can be written as
 \begin{align*}
@@ -193,7 +193,7 @@ Q\big(\theta; \theta^{(t)}\big) &= \sum_{i<j} (Y_{ij} + \alpha - 1) \mathbb{E}_{
 
 Since $p_{ij}|Y_{ij}, \theta \propto Beta(\alpha + Y_{ij}, \beta + 1 - Y_{ij})$, we define the following 
 \begin{align*}
-\pi_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} \big[\log p_{ij}\big] = \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\
+\pi_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} \big[\log p_{ij}\big] = \Psi\Big(\alpha + Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big) \\\pause
 \eta_{ij} &\equiv \mathbb{E}_{p_{ij} | Y_{ij}, \theta} \big[\log (1 - p_{ij})\big] = \Psi\Big(\beta + 1 - Y_{ij}\Big) - \Psi\Big(\alpha + \beta + 1\Big)
 \end{align*}
 \end{frame}
@@ -254,7 +254,7 @@ Let $Y_{ij}$ be the weight on edge $E_{ij}\in \mathbf{E}$.
     \begin{align*}
     Y_{ij} | \lambda_{ij} &\overset{ind}\sim \text{Pois}(\lambda_{ij}) \\
     \lambda_{ij} &\overset{iid}\sim \text{Gamma}(\alpha, \beta)
-\end{align*}
+\end{align*}\pause 
 Then the log-likelihood for this model can be written as 
 \begin{align*}
 l(\lambda, \alpha, \beta ; Y) &= \sum_{i<j}\Big\{ \log \lambda_{ij}\big(Y_{ij} + \alpha - 1) - \lambda_{ij}(1+ \beta)\\
@@ -371,7 +371,7 @@ We first update $\beta^{(t+1)}$ using $\alpha^{(t)}$ then use Netwon-Raphson to 
 \begin{frame}{Latent Network Model}
 \begin{align*}
 Y_{ij} | Z_i, Z_j &\overset{ind}\sim \text{Bern}\Big[\text{logit}^{-1}\big(\Vert Z_i - Z_j \Vert\big)\Big] \\
-Z_i | K_i = k_i &\overset{ind}\sim MVN(\mu_{k_i}, \sigma_{k_i}^2 I_d) \\
+Z_i | K_i = k_i &\overset{ind}\sim MVN_d(\mu_{k_i}, \sigma_{k_i}^2 I_d) \\
 K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
 \lambda_k &\overset{iid}\sim \frac{1}{G} \\
 \mu_k &\overset{iid}\sim \text{MVN}_d(0, I_2) \\
@@ -403,7 +403,7 @@ f_{\sigma_{k_i}^2|\theta, Y}(\sigma_{k_i}^2|\theta, Y) &\propto \prod_{K_i = k}
  \exp\left\{-\frac{1}{2 \sigma_{k_i}^2} \sum_{K_i = k} \left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right)\right\}
 \end{align*}
 Thus for all $k \in \{1, \ldots, G\}$, we arrive at the following distribution for $\sigma_k^2 | \theta^{(t)}, Y$:
-\[\sigma_k^2 | \theta^{(t)}, Y \sim \text{Inv} \Gamma ( \frac{c}{2}, \frac{1}{2})  \overset{D}= \tau^2  \;\nu \; \text{Inv} \chi^2_c\]
+\[\sigma_k^2 | \theta^{(t)}, Y \sim \text{Inv} \Gamma \left( \frac{c}{2}, \frac{1}{2}\right)  \overset{D}= \tau^2  \;\nu \; \text{Inv} \chi^2_c\]
 where $n_g = \sum \mathbb{I} _{\{ k_i = K\}}$ and $SS_g + n_g = \sum_{K_i = k} \left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right) $ and
 \begin{align*}
 \nu_{post} &= (c + 1) n_g + 2( n_g - 1 )   \\
@@ -429,7 +429,7 @@ f_{Z_i | \theta, Y}(Z_i | \theta, Y) &\propto \prod_{j \neq i}\Big(\text{logit}^
 \end{align*}
 Do not know how to sample directly from this distribution, hence MH step. Symmetric proposal (deviating from Hoff):
 \begin{align*}
-q(Z_* | \theta^{(t)}, Y) &\sim MVN_2(0, I_2) \\
+q(Z_* | \theta^{(t)}, Y) &\sim MVN_d(0, I_d) \\
 R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \theta^{(t)}, Y)}{f_{Z | \theta, Y}(Z^{(t)} | \theta^{(t)}, Y)q(Z^* | \theta^{(t)}, Y)} \\
 &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)}{f_{Z | \theta, Y}(Z^{(t)} | \theta^{(t)}, Y)} 
 \end{align*}
@@ -568,6 +568,12 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 \item This project had used many subjects covered in class Newton- Raphson, EM, MCMC, Graphical model, lse, and sampling -- the material from class is very useful!
 \end{enumerate}
 \end{frame}
+
+\begin{frame}{References}
+\nocite{*}
+\printbibliography
+\end{frame}
+
 
 
 

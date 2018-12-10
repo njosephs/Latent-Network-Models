@@ -39,143 +39,153 @@
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {7}{7}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {2}{0}{3}{8/8}{}{0}}
+\headcommand {\slideentry {2}{0}{3}{8/9}{}{0}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {8}{8}}
+\headcommand {\beamer@framepages {8}{9}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\sectionentry {3}{Expectaction Maximimation}{9}{Expectaction Maximimation}{0}}
+\headcommand {\sectionentry {3}{Expectation Maximization}{10}{Expectation Maximization}{0}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@sectionpages {6}{8}}
+\headcommand {\beamer@sectionpages {6}{9}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@subsectionpages {6}{8}}
+\headcommand {\beamer@subsectionpages {6}{9}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@subsectionentry {0}{3}{1}{9}{Unweighted Network Model}}\headcommand {\beamer@subsectionpages {9}{8}}
+\headcommand {\beamer@subsectionentry {0}{3}{1}{10}{Unweighted Network Model}}\headcommand {\beamer@subsectionpages {10}{9}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{1}{1}{9/9}{Unweighted Network Model}{0}}
+\headcommand {\slideentry {3}{1}{1}{10/11}{Unweighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {9}{9}}
+\headcommand {\beamer@framepages {10}{11}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{1}{2}{10/10}{Unweighted Network Model}{0}}
+\headcommand {\slideentry {3}{1}{2}{12/13}{Unweighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {10}{10}}
+\headcommand {\beamer@framepages {12}{13}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{1}{3}{11/11}{Unweighted Network Model}{0}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {11}{11}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{1}{4}{12/12}{Unweighted Network Model}{0}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {12}{12}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{1}{5}{13/13}{Unweighted Network Model}{0}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {13}{13}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{1}{6}{14/14}{Unweighted Network Model}{0}}
+\headcommand {\slideentry {3}{1}{3}{14/14}{Unweighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {14}{14}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@subsectionentry {0}{3}{2}{15}{Weighted Network Model}}\headcommand {\beamer@subsectionpages {9}{14}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{2}{1}{15/15}{Weighted Network Model}{0}}
+\headcommand {\slideentry {3}{1}{4}{15/15}{Unweighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {15}{15}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{2}{2}{16/16}{Weighted Network Model}{0}}
+\headcommand {\slideentry {3}{1}{5}{16/16}{Unweighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {16}{16}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{2}{3}{17/17}{Weighted Network Model}{0}}
+\headcommand {\slideentry {3}{1}{6}{17/17}{Unweighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {17}{17}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{2}{4}{18/18}{Weighted Network Model}{0}}
+\headcommand {\beamer@subsectionentry {0}{3}{2}{18}{Weighted Network Model}}\headcommand {\beamer@subsectionpages {10}{17}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {18}{18}}
+\headcommand {\slideentry {3}{2}{1}{18/19}{Weighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{2}{5}{19/19}{Weighted Network Model}{0}}
+\headcommand {\beamer@framepages {18}{19}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {19}{19}}
+\headcommand {\slideentry {3}{2}{2}{20/21}{Weighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{2}{6}{20/20}{Weighted Network Model}{0}}
+\headcommand {\beamer@framepages {20}{21}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {20}{20}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{2}{7}{21/21}{Weighted Network Model}{0}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {21}{21}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{2}{8}{22/22}{Weighted Network Model}{0}}
+\headcommand {\slideentry {3}{2}{3}{22/22}{Weighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {22}{22}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {3}{2}{9}{23/23}{Weighted Network Model}{0}}
+\headcommand {\slideentry {3}{2}{4}{23/23}{Weighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {23}{23}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\sectionentry {4}{Markov Chain Monte Carlo}{24}{Markov Chain Monte Carlo}{0}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@sectionpages {9}{23}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@subsectionpages {15}{23}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {4}{0}{1}{24/24}{}{0}}
+\headcommand {\slideentry {3}{2}{5}{24/24}{Weighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {24}{24}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {4}{0}{2}{25/25}{}{0}}
+\headcommand {\slideentry {3}{2}{6}{25/25}{Weighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {25}{25}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {4}{0}{3}{26/26}{}{0}}
+\headcommand {\slideentry {3}{2}{7}{26/26}{Weighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {26}{26}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {4}{0}{4}{27/27}{}{0}}
+\headcommand {\slideentry {3}{2}{8}{27/28}{Weighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {27}{27}}
+\headcommand {\beamer@framepages {27}{28}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {4}{0}{5}{28/28}{}{0}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@framepages {28}{28}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {4}{0}{6}{29/29}{}{0}}
+\headcommand {\slideentry {3}{2}{9}{29/29}{Weighted Network Model}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {29}{29}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {4}{0}{7}{30/30}{}{0}}
+\headcommand {\sectionentry {4}{Markov Chain Monte Carlo}{30}{Markov Chain Monte Carlo}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@sectionpages {10}{29}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@subsectionpages {18}{29}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\slideentry {4}{0}{1}{30/30}{}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {30}{30}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {4}{0}{8}{31/31}{}{0}}
+\headcommand {\slideentry {4}{0}{2}{31/31}{}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {31}{31}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {4}{0}{9}{32/32}{}{0}}
+\headcommand {\slideentry {4}{0}{3}{32/32}{}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {32}{32}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\sectionentry {5}{Model Comparison}{33}{Model Comparison}{0}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@sectionpages {24}{32}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@subsectionpages {24}{32}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {5}{0}{1}{33/33}{}{0}}
+\headcommand {\slideentry {4}{0}{4}{33/33}{}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {33}{33}}
 \defcounter {refsection}{0}\relax 
-\headcommand {\sectionentry {6}{Conclusion}{34}{Conclusion}{0}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@sectionpages {33}{33}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\beamer@subsectionpages {33}{33}}
-\defcounter {refsection}{0}\relax 
-\headcommand {\slideentry {6}{0}{1}{34/34}{}{0}}
+\headcommand {\slideentry {4}{0}{5}{34/34}{}{0}}
 \defcounter {refsection}{0}\relax 
 \headcommand {\beamer@framepages {34}{34}}
-\headcommand {\beamer@partpages {1}{34}}
-\headcommand {\beamer@subsectionpages {34}{34}}
-\headcommand {\beamer@sectionpages {34}{34}}
-\headcommand {\beamer@documentpages {34}}
-\headcommand {\def \inserttotalframenumber {34}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\slideentry {4}{0}{6}{35/35}{}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@framepages {35}{35}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\slideentry {4}{0}{7}{36/36}{}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@framepages {36}{36}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\slideentry {4}{0}{8}{37/37}{}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@framepages {37}{37}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\slideentry {4}{0}{9}{38/38}{}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@framepages {38}{38}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\sectionentry {5}{Model Comparison}{39}{Model Comparison}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@sectionpages {30}{38}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@subsectionpages {30}{38}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\slideentry {5}{0}{1}{39/39}{}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@framepages {39}{39}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\sectionentry {6}{Conclusion}{40}{Conclusion}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@sectionpages {39}{39}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@subsectionpages {39}{39}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\slideentry {6}{0}{1}{40/40}{}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@framepages {40}{40}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\sectionentry {7}{References}{41}{References}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@sectionpages {40}{40}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@subsectionpages {40}{40}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\slideentry {7}{0}{0}{41/41}{}{0}}
+\defcounter {refsection}{0}\relax 
+\headcommand {\beamer@framepages {41}{41}}
+\headcommand {\beamer@partpages {1}{41}}
+\headcommand {\beamer@subsectionpages {40}{41}}
+\headcommand {\beamer@sectionpages {40}{41}}
+\headcommand {\beamer@documentpages {41}}
+\headcommand {\def \inserttotalframenumber {35}}
