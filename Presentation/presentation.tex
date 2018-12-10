@@ -533,7 +533,6 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 
 
 
-
 %-------------------------------------------------
 %
 %           Model Comparisons + Inference
@@ -541,8 +540,19 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 %-------------------------------------------------
 
 
-\section{Model Comparison \& Inference}
-
+\section{Model Comparison}
+\begin{frame}
+\frametitle{EM VS MCMC}
+\begin{enumerate}[a]
+\item results from EM using weighted network has more information than the unweighted
+\item both EM algorithms converge much faster than the MCMC for this model
+\item large room for the MCMC to improve : 
+\begin{enumerate}[i]
+\item block-update covariate coefficients with the scale of latent space positions 
+\item once the distributions of the variables are known, we can perform further analysis such as regression
+\end{enumerate}
+\end{enumerate}
+\end{frame}
 
 %-------------------------------------------------
 %
@@ -550,14 +560,16 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 %
 %-------------------------------------------------
 
-
-\section{Conclusion \& Future Work}
-
-
-\begin{frame}{References}
-\nocite{*}
-\printbibliography
+\section{Conclusion}
+\begin{frame}
+\frametitle{Conclusion}
+\begin{enumerate}
+\item The information we can draw from both EM and MCMC is very interpretable. We can group characters by their geographical location, or personal relation; we can also detect if a character stands out ( i.e. Daenerys).
+\item This project had used many subjects covered in class Newton- Raphson, EM, MCMC, Graphical model, lse, and sampling -- the material from class is very useful!
+\end{enumerate}
 \end{frame}
+
+
 
 \end{document}
 
