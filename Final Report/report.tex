@@ -294,13 +294,13 @@ f_{\sigma_{k_i}^2|\theta, Y}(\sigma_{k_i}^2|\theta, Y) &\propto \prod_{K_i = k}
  &\propto  \prod_{K_i = k} (\sigma_{k_i} ^2 )^{(- \frac{c}{2} - \frac{1}{2}) -1}  
  \exp\left\{-\frac{1}{2 \sigma_{k_i}^2}\left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right)\right\} \\
  & \propto (\sigma_{k_i} ^2 )^{\left( (\frac{-c-1}{2} ng - ng +1 ) -1\right)}  
- \exp\left\{-\frac{1}{2 \sigma_{k_i}^2} \sum_{K_i = k} \left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right)\right\}.
+ \exp\left\{-\frac{1}{2 \sigma_{k_i}^2} \sum_{K_i = k} \left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right)\right\}
  \end{align*}
- Let $n_g = \sum \mathbb{I} _{\{ k_i = K\}}$ and $SS_g + n_g = \sum_{K_i = k} \left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right) $. 
+Let $n_g = \sum \mathbb{I} _{\{ k_i = K\}}$ and $SS_g + n_g = \sum_{K_i = k} \left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right) $. 
 Then by using the posterior distributions 
 \begin{align*}
 \nu_{post} &= (c + 1) n_g + 2( n_g - 1 )   \\
- \tau^2_{post} &= \frac{SS_g + n_g} {(c + 1) n_g + 2 ( n_g -1)},
+ \tau^2_{post} &= \frac{SS_g + n_g} {(c + 1) n_g + 2 ( n_g -1)}
  \end{align*} 
  we arrive at the following distribution for $\sigma_k^2 | \theta^{(t)}, Y$:
 
@@ -309,7 +309,7 @@ Then by using the posterior distributions
 %\sigma_{k_j}^2|\theta^{(t)}, Y &\sim \text{Inv}\Gamma\left(3/2, \frac{(Z_j - \mu_{k_i}^{(t)})^T(Z_j - \mu_{k_j}^{(t)})}{2} + 1\right)\\
 %\end{align*}
 
-$$ \sigma_k^2 | \theta^{(t)}, Y \sim \text{Inv} \Gamma ( \frac{c}{2}, \frac{1}{2})  \overset{D}= \tau^2  \;\nu \; \text{Inv} \chi^2_c. $$
+$$ \sigma_k^2 | \theta^{(t)}, Y \sim \text{Inv} \Gamma ( \frac{c}{2}, \frac{1}{2})  \overset{D}= \tau^2  \;\nu \; \text{Inv} \chi^2_c$$
 
 Next, we find the conditional probabilities for group assignment:
 \[\mathbb{P}(K_i = k | \theta, Y) \propto \lambda_k f_{{MVN}_d(\mu_k, \sigma_k^2)}(Z_i)\]

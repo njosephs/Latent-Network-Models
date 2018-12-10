@@ -257,7 +257,7 @@ Maximizing $Q(\theta, \theta^{(t)})$ with respect to $\theta$, we see that $\the
 We first update $\beta^{(t+1)}$ using $\alpha^{(t)}$ then use Netwon-Raphson to attain $\theta^{(t+1)}$. 
 \end{frame}
 
-\begin{frame}{Weighted Network Model: Psuedo-Code}
+\begin{frame}{Weighted Network Model: Psuedocode}
 \begin{center}
 \scalebox{.9}{  
     \begin{algorithm*}[H]
@@ -308,6 +308,154 @@ We first update $\beta^{(t+1)}$ using $\alpha^{(t)}$ then use Netwon-Raphson to 
 
 \section{Markov Chain Monte Carlo}
 
+\begin{frame}{Latent Network Model}
+\begin{align*}
+Y_{ij} | Z_i, Z_j &\overset{ind}\sim \text{Bern}\Big[\text{logit}^{-1}\big(\Vert Z_i - Z_j \Vert\big)\Big] \\
+Z_i | K_i = k_i &\overset{ind}\sim MVN(\mu_{k_i}, \sigma_{k_i}^2 I_d) \\
+K &\overset{iid}\sim \text{Multinoulli}\big(G, \lambda \big) \\
+\lambda_k &\overset{iid}\sim \frac{1}{G} \\
+\mu_k &\overset{iid}\sim \text{MVN}_d(0, I_2) \\
+\sigma_k^2 &\overset{iid}\sim \text{Inv} \chi^2_1
+\end{align*}
+\end{frame}
+
+\scriptsize
+\begin{frame}{Conditionals: $\mu$}
+\begin{align*}
+f_{\mu_{k}|\theta^{(t)}, Y}(\mu_k|\theta^{(t)},Y) &\propto \prod_{k_i = k} \exp\left\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T(Z_i - \mu_{k_i})\right\}\exp\left\{-\frac{1}{2}\mu_{k_i}^T\mu_{k_i}\right\}\\
+&\propto\exp\left\{\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\} \Big[-\frac{(\sigma_{k_i}^2+1)}{2\sigma_{k_i}^t}\left(\mu_{k_i}-\frac{Z_i}{(\sigma_{k_i}^2+1)}\right)^T\left(\mu_{k_i}-\frac{Z_i}{(\sigma_{k_i}^2+1)}\right)\Big]\right\}
+\end{align*}
+Thus for all $k \in \{1, \ldots, G\}$, we arrive at the following distribution for $\mu_k | \theta^{(t)}, Y$:
+\begin{align*}
+\mu_{k}|\theta^{(t)},Y&\sim f_{{MVN}_d} \left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t)}}{(\sigma_{k_i}^2)^{(t)}+1}I_2\right)\\
+\end{align*}
+\end{frame}
+
+\scriptsize
+\begin{frame}{Conditionals: $\sigma$}
+\begin{align*}
+f_{\sigma_{k_i}^2|\theta, Y}(\sigma_{k_i}^2|\theta, Y) &\propto \prod_{K_i = k} 
+{\sigma_{K_i}^2}^{-\frac{1}{2}} 
+\exp \left\{ \frac{1}{2 \sigma_{k_i}}(Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})\right\} 
+(\sigma_{k_i}^2)^{-\frac{c}{2} -1}  
+ \exp \left\{-\frac{1}{2 \sigma_{k_i}^2}\right\} \\
+ & \propto (\sigma_{k_i} ^2 )^{\left( (\frac{-c-1}{2} ng - ng +1 ) -1\right)}  
+ \exp\left\{-\frac{1}{2 \sigma_{k_i}^2} \sum_{K_i = k} \left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right)\right\}
+\end{align*}
+Thus for all $k \in \{1, \ldots, G\}$, we arrive at the following distribution for $\sigma_k^2 | \theta^{(t)}, Y$:
+\[\sigma_k^2 | \theta^{(t)}, Y \sim \text{Inv} \Gamma ( \frac{c}{2}, \frac{1}{2})  \overset{D}= \tau^2  \;\nu \; \text{Inv} \chi^2_c\]
+where $n_g = \sum \mathbb{I} _{\{ k_i = K\}}$ and $SS_g + n_g = \sum_{K_i = k} \left((Z_i-\mu_{k_i})^T(Z_i-\mu_{k_i})+1\right) $ and
+\begin{align*}
+\nu_{post} &= (c + 1) n_g + 2( n_g - 1 )   \\
+\tau^2_{post} &= \frac{SS_g + n_g} {(c + 1) n_g + 2 ( n_g -1)},
+\end{align*} 
+\end{frame}
+
+\small
+\begin{frame}{Conditionals: Group $K$}
+\[\mathbb{P}(K_i = k | \theta, Y) \propto \lambda_k f_{{MVN}_d(\mu_k, \sigma_k^2)}(Z_i)\]
+Since $K$ is Multinoulli, we arrive at the following probability by recognizing they must normalize to unity:
+\begin{align*}
+\mathbb{P}(K_i = k | \theta, Y) &= \frac{\lambda_k f_{{MVN}_d(\mu_k, \sigma_k^2)}(Z_i)}{\sum_{g=1}^G\lambda_g f_{{MVN}_d(\mu_g, \sigma_g^2)}(Z_i)} \\
+&= \frac{f_{{MVN}_d(\mu_k, \sigma_k^2)}(Z_i)}{\sum_{g=1}^G f_{{MVN}_d(\mu_g, \sigma_g^2)}(Z_i)} \tag{$\lambda^{(t)}$}
+\end{align*}
+\end{frame}
+
+\small
+\begin{frame}{Conditionals: Latent variable $Z$}
+\begin{align*}
+f_{Z_i | \theta, Y}(Z_i | \theta, Y) &\propto \prod_{j \neq i}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
+&\ \ \ \ \ \ \ \ \ \ \exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\}
+\end{align*}
+Do not know hot to sample directly from this distribution, hence MH step. Symmetric proposal (deviating from Hoff):
+\begin{align*}
+q(Z_* | \theta^{(t)}, Y) &\sim MVN_2(0, I_2) \\
+R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \theta^{(t)}, Y)}{f_{Z | \theta, Y}(Z^{(t)} | \theta^{(t)}, Y)q(Z^* | \theta^{(t)}, Y)} \\
+&= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)}{f_{Z | \theta, Y}(Z^{(t)} | \theta^{(t)}, Y)} 
+\end{align*}
+\end{frame}
+
+\begin{frame}{MCMC Pseudocode}
+\begin{center}
+\vspace*{-.4cm}
+\scalebox{.8}{ 
+    \begin{algorithm*}[H]
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \underline{LNM MCMC} $(G, N_k, d, ns)$\;
+    \Input{Graph $G$\\
+    Number of groups $N_k$\\
+    Dimension of Latent Variable $d$\\
+    Number of samples $ns$}
+    \Output{Posterior $p(Z|Y,\theta)$}
+    Initialize  parameters $\mu^{(0)}, {\sigma^2}^{(0)}, \lambda^{(0)}, K^{(0)}, Z^{(0)}$\;
+    \For{$t = 2,\ldots,ns$} {
+    \For{$k = 1, \dotsc, N_k$}{
+    	sample $\mu_{k}|\theta^{(t)},Y  \sim MVN_d\left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t-1)}}{(\sigma_{k_i}^2)^{(t-1)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t-1)}}{(\sigma_{k_i}^2)^{(t-1)}+1}I_d\right)$\;
+    }
+    \For{$k = 1, \dotsc, N_k$}{
+    	sample $\sigma_{k}^2|\theta^{(t)},Y \sim \Big(1 + \sum_{i=1}^{N_v}\mathbb{I}\{k_i = k\}(Z_i^{(t-1)} - \mu_k^{(t)})^T(Z_i^{(t-1)} - \mu_k^{(t)})\Big)\text{Inv}\chi^2_{1 + d\sum_{i=1}^{N_V}\mathbb{I}\{k_i = k\}}$ \;
+    }
+     \For{$i = 1, \dotsc, N_v$}{
+  	sample $K_i \sim \text{Multinoulli}(G, \lambda^{(t)})$\;
+    }
+   \For{$i=1, \dotsc, N_v$}{
+      sample $Z_i^* \sim MVN_d(0, I_d)$\;
+      $R(Z_i^*, Z_i^{(t)}) =  \min\Big(1, \frac{f_{Z | \theta, Y}(Z_i^*|\theta^{(t)}, Y, Z_{[-1]})}{f_{Z | \theta, Y}(Z_i^{(t)}|\theta^{(t)}, Z_{[-1]})}\Big)$ \;
+      sample $U \sim \mathcal{U}(0,1)$\;
+      \If{$U\leq R(Z_i^*, Z_i^{(t)})$}{
+      $Z_i^{(t+1)} = Z_i^*$\;
+      \Else{$Z_i^{*(t+1)} = Z_i^{(t)}$}
+
+         }
+   }
+   }
+    \caption{Gibbs sampler for latent network model}
+    \end{algorithm*}
+}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\vspace*{-9.7cm}
+\scalebox{.8}{ 
+    \begin{algorithm*}[H]
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \underline{LNM MCMC} $(G, N_k, d, ns)$\;
+    \Input{Graph $G$\\
+    Number of groups $N_k$\\
+    Dimension of Latent Variable $d$\\
+    Number of samples $ns$}
+    \Output{Posterior $p(Z|Y,\theta)$}
+    Initialize  parameters $\mu^{(0)}, {\sigma^2}^{(0)}, \lambda^{(0)}, K^{(0)}, Z^{(0)}$\;
+    \For{$t = 2,\ldots,ns$} {
+    \For{$k = 1, \dotsc, N_k$}{
+    	sample $\mu_{k}|\theta^{(t)},Y  \sim MVN_d\left(\sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{Z_i^{(t-1)}}{(\sigma_{k_i}^2)^{(t-1)}+1}, \sum_{i = 1}^{N_v}\mathbb{I}\{k_i = k\}\frac{(\sigma_{k_i}^2)^{(t-1)}}{(\sigma_{k_i}^2)^{(t-1)}+1}I_d\right)$\;
+    }
+    \For{$k = 1, \dotsc, N_k$}{
+    	sample $\sigma_{k}^2|\theta^{(t)},Y \sim \Big(1 + \sum_{i=1}^{N_v}\mathbb{I}\{k_i = k\}(Z_i^{(t-1)} - \mu_k^{(t)})^T(Z_i^{(t-1)} - \mu_k^{(t)})\Big)\text{Inv}\chi^2_{1 + d\sum_{i=1}^{N_V}\mathbb{I}\{k_i = k\}}$ \;
+    }
+     \For{$i = 1, \dotsc, N_v$}{
+  	sample $K_i \sim \text{Multinoulli}(G, \lambda^{(t)})$\;
+    }
+   \For{$i=1, \dotsc, N_v$}{
+      sample $Z_i^* \sim MVN_d(0, I_d)$\;
+      $R(Z_i^*, Z_i^{(t)}) =  \min\Big(1, \frac{f_{Z | \theta, Y}(Z_i^*|\theta^{(t)}, Y, Z_{[-1]})}{f_{Z | \theta, Y}(Z_i^{(t)}|\theta^{(t)}, Z_{[-1]})}\Big)$ \;
+      sample $U \sim \mathcal{U}(0,1)$\;
+      \If{$U\leq R(Z_i^*, Z_i^{(t)})$}{
+      $Z_i^{(t+1)} = Z_i^*$\;
+      \Else{$Z_i^{*(t+1)} = Z_i^{(t)}$}
+
+         }
+   }
+   }
+    \caption{Gibbs sampler for latent network model}
+    \end{algorithm*}
+}
+\end{center}
+\end{frame}
 
 %-------------------------------------------------
 %

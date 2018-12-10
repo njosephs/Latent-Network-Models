@@ -41,3 +41,9 @@ Thumbs.db
 *.aux
 *.bcf
 *.run.xml
+*.nav
+*.out
+*.snm
+*.toc
+*.log
+*.synctex.gz
