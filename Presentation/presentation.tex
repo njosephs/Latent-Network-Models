@@ -51,6 +51,39 @@
 \end{frame}
 
 \section{Introduction}
+\begin{frame}
+ \frametitle{Data}
+\begin{enumerate}
+\item Data origin: A Song of Ice and Fire $\cdot$ A storm of Swords
+\item Data form: 352 pairs of characters and the number of interaction between them
+\end{enumerate}
+
+We start our analysis by constructing a Weighted Network $G$: 
+\begin{enumerate}[i]
+\item Characters $\rightarrow$ nodes 
+\:  $N_V (G)= 107$
+\item Interactions $\rightarrow$ edges   
+\: $N_E (G) = 352$
+\item numbers of interaction $\rightarrow$ Weights on the edge
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Form a Network}
+% \includegraphics[width = 0.75\textwidth]{{"initial_net"}.pdf}
+PICTURE HERE
+\begin{enumerate}[a]
+\item Q: How to handle the sparsity of the network? 
+\item A: Take a subnetwork of G, cut off at 100 interactions, call it G'
+\item $N_V (G')= 24$, $N_E (G') = 102$
+\item Use adjacency matrix A to represent G': 
+ \begin{enumerate}[i]
+  \item $a(i, j)$ = number of interactions between $i$th and $j$th character
+  \item  i.e., $a(i, j) = 0$ if there's no interaction between the two people
+ \end{enumerate}
+\end{enumerate}
+\end{frame} 
+
 
 
 %-------------------------------------------------
