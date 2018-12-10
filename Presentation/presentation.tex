@@ -4,9 +4,17 @@
 \usepackage{multicol}
 \usepackage{lmodern}
 \usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage{wrapfig}
+\usepackage[export]{adjustbox}
+\usepackage{lmodern}
+\usepackage{hyperref}
+
+
+\usepackage[backend=biber]{biblatex}
+\bibliography{/Users/benjamindraves/Desktop/ref.bib}
 
 \usetheme{CambridgeUS}
-\graphicspath{{/Users/benjamindraves/Desktop/figures}}
+\graphicspath{{/Users/benjamindraves/Desktop/figures/}}
 
 \makeatletter
 \setbeamertemplate{footline}
@@ -70,8 +78,10 @@ We start our analysis by constructing a Weighted Network $G$:
 
 \begin{frame}
 \frametitle{Form a Network}
-% \includegraphics[width = 0.75\textwidth]{{"initial_net"}.pdf}
-PICTURE HERE
+
+\begin{minipage}{\textwidth}
+\begin{columns}[T]
+\begin{column}{0.4\textwidth}
 \begin{enumerate}[a]
 \item Q: How to handle the sparsity of the network? 
 \item A: Take a subnetwork of G, cut off at 100 interactions, call it G'
@@ -82,8 +92,28 @@ PICTURE HERE
   \item  i.e., $a(i, j) = 0$ if there's no interaction between the two people
  \end{enumerate}
 \end{enumerate}
+\end{column}
+\begin{column}{0.6\textwidth}
+\begin{figure}
+\textit{Unfiltered Network}\par
+\centering
+\includegraphics[width = 0.9\textwidth, height = .9\textheight]{initial_net.pdf}
+\end{figure}
+\end{column}
+\end{columns}
+\end{minipage}
 \end{frame} 
 
+
+\begin{frame}
+\frametitle{Filtered Network}
+\begin{figure}
+\textit{Filtered Network}\par
+\centering
+\includegraphics[width = 0.9\textwidth, height = .9\textheight]{filtered_net.pdf}
+\end{figure}
+
+\end{frame} 
 
 
 %-------------------------------------------------
@@ -206,14 +236,14 @@ Here, we use Newton-Raphson to obtain both $\alpha^{(t+1)}$ and $\beta^{(t+1)}$.
 \begin{frame}{Unweighted Network Model: Distances}
 \begin{figure}
     \centering
-    %\includegraphics[width = 0.75\textwidth]{heatmap_dist_unweighted.pdf}
+    \includegraphics[width = 0.75\textwidth, height = 0.85\textheight]{heatmap_dist_unweighted.pdf}
     \end{figure}
 \end{frame}
 
 \begin{frame}{Unweighted Network Model: Probabilities}
 \begin{figure}
     \centering
-    %\includegraphics[width = 0.75\textwidth]{heatmap_p_unweighted.pdf}
+    \includegraphics[width = 0.75\textwidth, height = 0.85\textheight]{heatmap_p_unweighted.pdf}
     \end{figure}
 \end{frame}
 
@@ -285,17 +315,47 @@ We first update $\beta^{(t+1)}$ using $\alpha^{(t)}$ then use Netwon-Raphson to 
 \begin{frame}{Weighted Network Model: Distance Estimates}
 \begin{figure}
     \centering
-    %\includegraphics[width = 0.75\textwidth]{{EM/heatmap\textunderscore dist\_weighted}.pdf}}
+    \includegraphics[width = 0.75\textwidth, height = 0.85\textheight]{heatmap_dist_weighted.pdf}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Weighted Network Model: Distance Density}
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.75\textwidth, height = 0.85\textheight]{density_dist_weighted.pdf}
+\end{figure}
 \end{frame}
 
 \begin{frame}{Weighted Network Model: $\lambda$ Estimates}
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.75\textwidth, height = 0.85\textheight]{heatmap_p_weighted.pdf}
+\end{figure}
 \end{frame}
 
+\begin{frame}{Weighted Network Model: Inference}
+\begin{enumerate}
+\item Now that we have estimates for $\hat{\lambda}_{ij}$, how can we use these estimates to infer communities in the network? 
+\item One idea: Spectral Clustering\pause
+\item Interpret these estimates as smooth estimates of the weighted - Adjacency matrix 
+\begin{align*}
+\widehat{\Lambda} = \begin{bmatrix}
+\hat{\lambda}_{11} & \hat{\lambda}_{12} & \dots & \hat{\lambda}_{1n}\\
+\hat{\lambda}_{21} & \hat{\lambda}_{22} & \dots & \hat{\lambda}_{2n}\\
+\vdots & \vdots & \ddots & \vdots\\
+\hat{\lambda}_{n1} & \hat{\lambda}_{n2} & \dots & \hat{\lambda}_{nn}\\
+\end{bmatrix}
+\end{align*}
+\item \href{https://plot.ly/~kkung/11}{Spectral Clustering Visualization}
+\end{enumerate}
+\end{frame}
+
+
 \begin{frame}{Weighted Network Model: Spectral Clustering}
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth, height = 0.9\textheight]{graph_p_clust_weighted.pdf}
+\end{figure}
 \end{frame}
 
 
@@ -332,7 +392,7 @@ Thus for all $k \in \{1, \ldots, G\}$, we arrive at the following distribution f
 \end{frame}
 
 \scriptsize
-\begin{frame}{Conditionals: $\sigma$}
+\begin{frame}{Conditionals: $\sigma^2$}
 \begin{align*}
 f_{\sigma_{k_i}^2|\theta, Y}(\sigma_{k_i}^2|\theta, Y) &\propto \prod_{K_i = k} 
 {\sigma_{K_i}^2}^{-\frac{1}{2}} 
@@ -367,7 +427,7 @@ Since $K$ is Multinoulli, we arrive at the following probability by recognizing 
 f_{Z_i | \theta, Y}(Z_i | \theta, Y) &\propto \prod_{j \neq i}\Big(\text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{Y_{ij}}\Big(1 - \text{logit}^{-1}\big(\Vert Z_i-Z_j\Vert)\Big)^{1 - Y_{ij}} \\
 &\ \ \ \ \ \ \ \ \ \ \exp\Big\{-\frac{1}{2\sigma_{k_i}^2}(Z_i - \mu_{k_i})^T( Z_i - \mu_{k_i}) \Big\}
 \end{align*}
-Do not know hot to sample directly from this distribution, hence MH step. Symmetric proposal (deviating from Hoff):
+Do not know how to sample directly from this distribution, hence MH step. Symmetric proposal (deviating from Hoff):
 \begin{align*}
 q(Z_* | \theta^{(t)}, Y) &\sim MVN_2(0, I_2) \\
 R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \theta^{(t)}, Y)}{f_{Z | \theta, Y}(Z^{(t)} | \theta^{(t)}, Y)q(Z^* | \theta^{(t)}, Y)} \\
@@ -457,6 +517,23 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 \end{center}
 \end{frame}
 
+\begin{frame}{}
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.75\textwidth, height = 0.85\textheight]{{Latent_Embedding_1.0}.pdf}
+\end{figure}
+\end{frame}
+
+\begin{frame}{MCMC: Clustering}
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth, height = 0.9\textheight]{Graph_P_Clustering_MCMC.pdf}
+\end{figure}
+\end{frame}
+
+
+
+
 %-------------------------------------------------
 %
 %           Model Comparisons + Inference
@@ -475,6 +552,12 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 
 
 \section{Conclusion \& Future Work}
+
+
+\begin{frame}{References}
+\nocite{*}
+\printbibliography
+\end{frame}
 
 \end{document}
 
