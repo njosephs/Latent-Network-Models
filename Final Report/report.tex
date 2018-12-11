@@ -438,8 +438,12 @@ As it appears that this model varies more smoothly over the network and accurate
 
 \subsection{MCMC}
 
-\begin{center}\label{MCMC_figs}
+We applied our MCMC algorithm to the model given in Section \ref{MCMC} using $ns = 50000$. Furthermore, we burned the first $20000$ samples and thinned by only taking every tenth sample in the chain. This is consistent with how Hoff used MCMC on Sampson's monk dataset. Additionally, we used $d = 2$ so that our latent variables $Z_i \in \mathbb{R}^2$, and $Nk = 3$, indicating three underlying groups. Assessing the convergence was nontrivial. We determined that our chain was probably not long enough as the group assignments did not meaningfully converge for all characters. We note that our sampling mechanism in the MH step deviates from Hoff's block updates. Consequently, we are ignoring vertex dependencies that are limiting our sampling efficiency. Furthermore, Sampson's monk dataset is represented as a network with fewer actors that our network, so we expect bigger networks will converge more slowly.
 
+
+We plot the results of our latent variables $Z_i$, as well as the network labeled with the mode of the group assignments in Figure \ref{MCMC_figs}. The means $\mu_k$ for $k \in \{1, 2, 3\}$ are also included in the latent variable embedding plot on th left. Here, we see that the mode does not necessarily correspond to the closest distribution. Nevertheless, we see the group assignments in the network on the right. Six of the characters in green are from the Stark family, while the other two, Samwell and Meera, have close relationships with members of the Stark family. The only Stark not colored green is Jon [Snow], who we later discover is actually not the son of Eddard (Ned) Stark. It is interesting that our method kept him out of the Stark cluster, though that may also be due to his geographical separation from the rest of the family.
+
+\begin{center}\label{MCMC_figs}
 \includegraphics[width = .4\textwidth]{{Latent_Embedding_1.0}.pdf}
 \includegraphics[width = 0.5\textwidth]{Graph_P_Clustering_MCMC.pdf}
 \end{center}
