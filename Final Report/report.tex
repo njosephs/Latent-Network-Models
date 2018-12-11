@@ -416,25 +416,25 @@ We see that using the EM algorithm for the unweighted model is a good initial at
 
 The first heat map is constructed using the latent distances and the darker the color, the closer the characters are. The second heat map is constructed using the probabilities of edges between characters, and again, the darker the color, the higher the probability of an edge between the characters. From these heat maps, we do see that some close relationships, like Bran and Hodor, are picked up in both cases. However, it is important to note that in this unweighted model, there is a one-to-one relationship between the latent distances and the presence of an edge and so the EM algorithm only provides estimates of probabilities and distances for when there is an edge and when there isn't an edge between the characters. Thus, we see that these results can be improved.
 
-\begin{enumerate}
-	\item Need to incorperate edges weights for better performance
-	\item Heatmaps showing better fit that the unweighted model
-\end{enumerate}
-
+To this end, we looked to improve this model with the inclusion of the edge weights into our modeling procedure. Following a quite similar approach to that of the unweighted EM algorithm, we use conjugate family relations and Network-Raphson to fit a model that assumes the edge weights follow a Poisson distribution with a parameter we interpret as a function of the distance in the latent space. The results for this analysis follow.
 \begin{center}\label{heatmap_weighted}
 \includegraphics[width = .4\textwidth]{heatmap_dist_weighted.pdf}
-\includegraphics[width = .4\textwidth]{heatmap_p_weighted.pdf}
+\includegraphics[width = .4\textwidth]{density_dist_weighted.pdf}
 \end{center}
+The heatmap in the leftmost panel of Figure \ref{heatmap_weighted} is that of the distances between nodes in the network. Lighter squares suggest the vertices are further away while the darker squares represent the vertices are closer. While it appears that this model again only fits a binary relation to the set of distances, we actually see that for those vertices that are ``close'' that this is not the case. Upon investigation of these values, we see that for vertices that do not share an edge, the distance was fit to be near $7$. In essence, this value represents a ``maximal'' distance between vertices. However, for vertices that are not this maximal distance apart, we see that the model is fitting different distances among the vertices. This is evident by the kernel density estimate in the rightmost panel of this figure. Here we see that for distances that are not maximal, the distances between vetices fall in $[0,.25]$ and perhaps come from a smooth bimodal distribution.
 
-\begin{enumerate}
-	\item We see that the density of the distances show bimodal behavior
-	\item Spectral clustering detects nontrivial clusters in the network
-\end{enumerate}
+
+In addition to these distances, we provide a similar heatmap in Figure \ref{weighted_clustering} that plots the estimates mean of the Poisson random variable associated with the edge connecting the characters. Darker squares suggest that the number of interactions between the characters is higher and lighter squares represent these characters have less relation. This plot makes clear that this weighted-EM algorithm does appear to detect the number of edges in the network. 
+
 
 \begin{center}\label{weighted_clustering}
-\includegraphics[width = .4\textwidth]{density_dist_weighted.pdf}
+\includegraphics[width = .4\textwidth]{heatmap_p_weighted.pdf}
 \includegraphics[width = .4\textwidth]{graph_p_clust_weighted.pdf}
 \end{center}
+
+As it appears that this model varies more smoothly over the network and accurately reflects the features of the network, we use these estimates for inference tasks. Regarding the estimates provided by the weighted EM algorithm, $\widehat{\Lambda} = [\hat{\lambda}_{ij}]$, as a smoothed, weighted adjacency matrix, we complete spectral clustering as suggested by \cite{Ng:2001:SCA:2980539.2980649}. The results of this cluster analysis can be found in the rightmost panel of Figure \ref{weighted_clustering}. 
+
+ 
 
 \subsection{MCMC}
 
