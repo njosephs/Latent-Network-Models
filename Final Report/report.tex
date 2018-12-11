@@ -60,8 +60,12 @@ Due to its global fame, \textit{Game of Thrones} has been studied in many differ
 After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes and $N_E(G) = 352$ edges which means it is quite sparse since it only contains approximately $6.20\%$ of $\binom{N_V(G)}{2} = 5,671$ possible edges. Figure \ref{filtered_net} shows the network described. 
 \begin{figure}[h]\label{filtered_net}
 	\centering
-	\includegraphics[scale = .46]{initial_net.pdf}
-	\includegraphics[scale = .46]{filtered_net.pdf}
+	\vspace*{-3cm}
+	\hspace*{-4cm}
+	\includegraphics[width = .5\textwidth, height = 5in]{initial_net.pdf}
+	\includegraphics[width = .5\textwidth, height = 5in]{filtered_net.pdf}
+	\hspace*{-4cm}
+	\vspace*{-2cm}
 \end{figure}
 In order to account for the sparsity of our network, we consider a subnetwork which only contains pairs of characters with at least 100 interactions. We chose a cutoff of 100 interactions because we want to focus our analysis on only the main characters. Looking at the distribution of the weighted degree, we see that $77.6\%$ of the characters had fewer than 100 interactions. Therefore, it makes sense to use this cutoff to limit our analysis to only the main characters. By doing so, our new network $G'$ contains $N_V(G') = 24$ nodes and $N_E(G') = 102$ edges. Here, we see that the network now contains $38.2\%$ of 276 possible edges, which is a more appropriate level of density for our analysis. Everything that follows is done on this subnetwork $G'$. Figure \ref{filtered_net} shows this subnetwork $G'$, and indeed, we recognize the main characters remain in our network.
 
