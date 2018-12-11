@@ -6,8 +6,38 @@
 \usepackage{amsmath,amsthm,amsfonts}
 \usepackage[linesnumbered,ruled]{algorithm2e}
 \usepackage[backend=bibtex, style=authoryear]{biblatex}
+\usepackage{listings}
+
+\usepackage[usenames,dvipsnames]{color}    
+
+\lstset{ 
+  language=R,                     % the language of the code
+  basicstyle=\ttfamily, % the size of the fonts that are used for the code
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\tiny\color{Blue},  % the style that is used for the line-numbers
+  stepnumber=0,                   % the step between two line-numbers. If it is 1, each line
+                                  % will be numbered
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  %frame=single,                   % adds a frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  keywordstyle=\color{RoyalBlue},      % keyword style
+  commentstyle=\color{YellowGreen},   % comment style
+  stringstyle=\color{ForestGreen}      % string literal style
+} 
+
 
 \graphicspath{{/Users/benjamindraves/Desktop/figures/}}
+\lstset{inputpath = /Users/benjamindraves/Desktop/Latent-Network-Models/Code/GoT/}
+
+\setlength\bibitemsep{1.5\itemsep}
 \bibliography{ref.bib}
 
 \title{Computational Techniques in Latent Network Models}
@@ -28,10 +58,10 @@ After discovering a dataset on the exchanges between the characters from the thi
 Due to its global fame, \textit{Game of Thrones} has been studied in many different contexts, especially in network analysis. Therefore, there are many readily available datasets. In our project, we use the dataset from \cite{beveridge2016network}, which contains information about characters' interactions in the third book of the series. In this case, an \textit{interaction} occurs if the characters' names appear within fifteen words of one another. This could mean that the characters interacted with each other, conversed with each other, or were generally mentioned together by another means. There is also a column that contains the number of times each pair interacts with one another. Using this dataset, we constructed a weighted network using the number of interactions as weights. Here, the nodes represent the characters and the edges represent the interactions. We use an adjacency matrix, $A$, to represent the network, where the $a_{i,j}$ element represents the number of times the characters interacted with each other. Note that this means if $a_{i.j} = 0$, there are no recorded interactions between character $i$ and $j$ based on how an \textit{interaction} is defined. Although the original dataset is intended as a directed network, we treat it as an undirected network in order to simplify our models.
 
 After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes and $N_E(G) = 352$ edges which means it is quite sparse since it only contains approximately $6.20\%$ of $\binom{N_V(G)}{2} = 5,671$ possible edges. Figure \ref{filtered_net} shows the network described. 
-\begin{figure}\label{filtered_net}
+\begin{figure}[h]\label{filtered_net}
 	\centering
-	\includegraphics[width = .45\textwidth]{initial_net.pdf}
-	\includegraphics[width = .45\textwidth]{filtered_net.pdf}
+	\includegraphics[scale = .46]{initial_net.pdf}
+	\includegraphics[scale = .46]{filtered_net.pdf}
 \end{figure}
 In order to account for the sparsity of our network, we consider a subnetwork which only contains pairs of characters with at least 100 interactions. We chose a cutoff of 100 interactions because we want to focus our analysis on only the main characters. Looking at the distribution of the weighted degree, we see that $77.6\%$ of the characters had fewer than 100 interactions. Therefore, it makes sense to use this cutoff to limit our analysis to only the main characters. By doing so, our new network $G'$ contains $N_V(G') = 24$ nodes and $N_E(G') = 102$ edges. Here, we see that the network now contains $38.2\%$ of 276 possible edges, which is a more appropriate level of density for our analysis. Everything that follows is done on this subnetwork $G'$. Figure \ref{filtered_net} shows this subnetwork $G'$, and indeed, we recognize the main characters remain in our network.
 
@@ -40,7 +70,7 @@ In order to account for the sparsity of our network, we consider a subnetwork wh
 
 \subsection{Model Formulation}\label{Model Formulation}
 
-A modern and popular class of network models is the \textit{Latent Network Model}. This model, first introduced by \cite{Hoff2002}, associates each vertex $v\in V$ with a latent variable $Z_v\in \mathcal{V}$. Using these variables, the probability of an $E_{ij}$ being in the network is given by $p_{ij} = \kappa(Z_i, Z_j)$ where $\kappa:\mathcal{V}\times\mathcal{V}\to[0,1]$. Following this work, the authors extend these models to the mixed-model, regression framework where nodal attribute vectors $x_V$ are used in modeling the probability of an edge presense ( \cite{KRIVITSKY2009204}). For simplicity we do not consider nodal attributes in this work and instead focus our inference on the latent variables associated with each network. Formally, we model the presence of an edge given our latent variables as
+A modern and popular class of network models is the \textit{Latent Network Model}. This model, first introduced by \cite{Hoff2002}, associates each vertex $v\in V$ with a latent variable $Z_v\in \mathcal{V}$. Using these variables, the probability of an $E_{ij}$ being in the network is given by $p_{ij} = \kappa(Z_i, Z_j)$ where $\kappa:\mathcal{V}\times\mathcal{V}\to[0,1]$. Following this work, the authors extend these models to the mixed-model, regression framework where nodal attribute vectors $x_V$ are used in modeling the probability of an edge presense (\cite{KRIVITSKY2009204}). For simplicity we do not consider nodal attributes in this work and instead focus our inference on the latent variables associated with each network. Formally, we model the presence of an edge given our latent variables as
 \[\text{logit} \ \mathbb{P}(Y_{ij} = 1|Z) = ||Z_i - Z_j|| + \epsilon_{ij}\]
 where
 \[Z_i \overset{ind}{\sim}\sum_{k=1}^G \lambda_k\text{MVN}_d(\mu_k,\sigma_k^2I_d)\]
@@ -404,9 +434,12 @@ The first heat map is constructed using the latent distances and the darker the 
 
 \subsection{MCMC}
 
-\textbf{Nate}: $\hat{Z} \in \mathbb{R}^2$ plot with $\hat{\mu}$ and $\hat{\sigma}^2$\\
+\begin{center}\label{MCMC_figs}
 
-\textbf{Lily}: k-means: table, network colored by clusters
+\includegraphics[width = .4\textwidth]{{Latent_Embedding_1.0}.pdf}
+\includegraphics[width = 0.5\textwidth]{Graph_P_Clustering_MCMC.pdf}
+\end{center}
+
 
 \section{Conclusion} \label{Conclusion}
 
@@ -417,10 +450,16 @@ Additionally, there is a lot of future work that can be accomplished in this are
 \section{References}
 \printbibliography
 
+\newpage
 \section*{Appendix}
 \appendix 
-
 \section{Estimation Maximization Code}
+
+\lstinputlisting[breaklines=true]{"LNM.EM".R}
+
+\newpage
 \section{Markov Chain Monte Carlo Code}
+
+\lstinputlisting{"LNM.MCMC".R}
 
 \end{document}
