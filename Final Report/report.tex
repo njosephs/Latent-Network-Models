@@ -434,6 +434,7 @@ In addition to these distances, we provide a similar heatmap in Figure \ref{weig
 
 As it appears that this model varies more smoothly over the network and accurately reflects the features of the network, we use these estimates for inference tasks. Regarding the estimates provided by the weighted EM algorithm, $\widehat{\Lambda} = [\hat{\lambda}_{ij}]$, as a smoothed, weighted adjacency matrix, we complete spectral clustering as suggested by \cite{Ng:2001:SCA:2980539.2980649}. The results of this cluster analysis can be found in the rightmost panel of Figure \ref{weighted_clustering}. 
 
+Based on our knowledge of the characters, the weighted EM model does a good job clustering. The green and red clusters both represent groups that are geographically together. Bran (Stark) and Jon (Snow), both have connections to characters in other clusters, but they are correctly assigned their respective groups based on their location in \textit{A Storm of Swords}. The light blue cluster is interesting because there is a complicated relationship between these characters: Catelyn is Jaime's captor, Brienne is Catelyn's protector, but Jaime and Brienne are love interests. Finally, the dark blue cluster represents all the characters at King's Landing. These could reasonably be broken into sub-clusters, but none of the characters belong in the first three clusters.
  
 
 \subsection{MCMC}
