@@ -83,7 +83,7 @@ With these, we can write the complete likelihood which we will use in both our f
 \section{Computational Methods} \label{Computational Methods}
 
 \subsection{EM}
-One method for finding the latent variables $Z_i$ for each node is the Expectation-Maximization (EM) algorithm. Unfortunately, the likelihood given in Section \ref{Model Formulation} cannot easily be handled with EM. In particular, finding $\mathbb{E}_{Z_i, Z_j | Y, \theta}\Big[l(Z, \theta ; Y)\Big]$ is difficult. One solution is to sample and use Monte Carlo estimation in the E-step, then proceed with the M-step. This is the so-called Monte Carlo EM (MCEM) method. 
+One method for finding the latent variables $Z_i$ for each node is the Expectation-Maximization (EM) algorithm. Unfortunately, the likelihood given in Section \ref{Model Formulation} cannot easily be handled with EM. In particular, finding $\mathbb{E}_{Z_i, Z_j | Y, \theta}\Big[l(Z, \theta ; Y)\Big]$ is difficult. One solution is to sample and use Monte Carlo methods to estimate the expectation in the E-step and then proceed with the M-step. This is the so-called Monte Carlo EM (MCEM) method. 
 
 Instead, we simplify our model to make EM more analytically tractable. In Section \ref{MCMC}, we fit the full model using MCMC. Here, we fit two simplified models: an unweighted model where $Y$ indicates the presence of an edge and a weighted model where now $Y$ represents the number of interactions between characters.
 
@@ -94,7 +94,7 @@ We first fit an unweighted model on the presence of an edge in the network, whic
 Y_{ij} | p_{ij} &\overset{ind}\sim \text{Bern}(p_{ij}) \\
 p_{ij} &\overset{iid}\sim \text{Beta}(\alpha, \beta)
 \end{align*}
-where we define $p_{ij} \equiv 2-2*\text{logit}^{-1} (d_{ij}) $ where $d_{ij}$ are latent distances defined in Section \ref{Model Formulation} and are calculated by $d_{ij} = logit(1 - \frac{p_{ij}}{2})$. We define $p_{ij}$ in this manner to ensure that higher probabilities result in smaller distances and lower probabilities result in greater distances. Then the likelihoods are 
+where we define $p_{ij} \equiv 2-2*\text{logit}^{-1} (d_{ij}) $ where $d_{ij}$ are latent distances defined in Section \ref{Model Formulation} and are calculated by $d_{ij} = logit(1 - \frac{p_{ij}}{2})$. We define $p_{ij}$ in this manner to ensure that an infinite distance results in zero probability of interaction and a distance of zero results in a probability of one. Then the likelihoods are 
 
 \begin{align*}
 \mathcal{L}(p, \alpha, \beta; Y) &= \prod_{i<j}p_{ij}^{Y_{ij}}\big(1 - p_{ij}\big)^{1 - Y_{ij}} \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}p_{ij}^{\alpha - 1}\big(1-p_{ij}\big)^{\beta - 1} \\
@@ -112,7 +112,7 @@ l(p, \alpha, \beta ; Y) &= \sum_{i<j} Y_{ij}\log \Big(\frac{p_{ij}}{1 - p_{ij}}\
 %\end{align*}
 
 
-For the E-step, we observe that the beta distribution is conjugate to the binomial and since the $p_{ij}$ only depend on the data through $Y_{ij}$, we have the following likelihood. Note we just suppress our parameters $\theta = \{\alpha, \beta\}$.
+For the E-step, we observe that the beta distribution is conjugate to the binomial and since $p_{ij}$ only depends on the data through $Y_{ij}$, we have the following likelihood. Note we just suppress our parameters $\theta = \{\alpha, \beta\}$.
 
 \begin{align*}
 p_{ij} | Y_{ij}, \theta &\propto \text{Bern}(p_{ij})\times \text{Beta}(\alpha, \beta)\\
@@ -372,8 +372,13 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 \end{enumerate}
 
 \subsection{EM}
+We see that using the EM algorithm for the unweighted model is a good initial attempt in modeling the interactions between characters. From the algorithm, we obtained estimates of probabilities of edges and latent distances between characters, and using these values, we were able to identify some closely related characters. Figure \ref{heatmap_unweighted} shows heat maps that depicts the modeled relationships for pairs of characters. The first heat map is constructed using the latent distances and the darker the color, the closer the characters are. The second heat map is constructed using the probabilities of edges between characters, and again, the darker the color, the higher the probability of an edge between the characters. From these heat maps, we do see that some close relationships, like Bran and Hodor, are picked up in both cases. However, it is important to note that in this unweighted model, there is a one-to-one relationship between the latent distances and the presence of an edge and so the EM algorithm only provides estimates of probabilities and distances for when there is an edge and when there isn't an edge between the characters. Thus, we see that these results can be improved.
 
-unweighted: paragraph ($d_{ij} \iff Y_{ij}$)\\
+\begin{center}\label{heatmap_unweighted}
+%\includegraphics{heatmap_dist_unweighted.pdf}
+%\includegraphics{heatmap_p_unweighted.pdf}
+\end{center}
+
 
 weighted: 3 heat maps, kernel density plot, cluster using distance matrix, network colored by clusters
 
