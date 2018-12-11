@@ -5,10 +5,11 @@
 \usepackage[margin =1.0in]{geometry}
 \usepackage{amsmath,amsthm,amsfonts}
 \usepackage[linesnumbered,ruled]{algorithm2e}
-\usepackage{biblatex}
-\addbibresource{ref.bib}
+\usepackage[backend=bibtex, style=authoryear]{biblatex}
 
-%\graphicspath{{report_figures/}}
+\graphicspath{{/Users/benjamindraves/Desktop/figures/}}
+\bibliography{ref.bib}
+
 \title{Computational Techniques in Latent Network Models}
 \author{Lily Chou, Ben Draves, Nathan Josephs, Kelly Kung}
 \date{December 12, 2018}
@@ -26,19 +27,20 @@ After discovering a dataset on the exchanges between the characters from the thi
 \section{Data}\label{Data}
 Due to its global fame, \textit{Game of Thrones} has been studied in many different contexts, especially in network analysis. Therefore, there are many readily available datasets. In our project, we use the dataset from \cite{beveridge2016network}, which contains information about characters' interactions in the third book of the series. In this case, an \textit{interaction} occurs if the characters' names appear within fifteen words of one another. This could mean that the characters interacted with each other, conversed with each other, or were generally mentioned together by another means. There is also a column that contains the number of times each pair interacts with one another. Using this dataset, we constructed a weighted network using the number of interactions as weights. Here, the nodes represent the characters and the edges represent the interactions. We use an adjacency matrix, $A$, to represent the network, where the $a_{i,j}$ element represents the number of times the characters interacted with each other. Note that this means if $a_{i.j} = 0$, there are no recorded interactions between character $i$ and $j$ based on how an \textit{interaction} is defined. Although the original dataset is intended as a directed network, we treat it as an undirected network in order to simplify our models.
 
-After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes and $N_E(G) = 352$ edges which means it is quite sparse since it only contains approximately $6.20\%$ of ${N_V(G) \choose 2} = 5,671$ possible edges. Figure \ref{filtered_net} shows the network described. 
+After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes and $N_E(G) = 352$ edges which means it is quite sparse since it only contains approximately $6.20\%$ of $\binom{N_V(G)}{2} = 5,671$ possible edges. Figure \ref{filtered_net} shows the network described. 
 \begin{figure}\label{filtered_net}
 	\centering
-	\includegraphics[scale = .5]{report_figures/filtered_net.pdf}
+	\includegraphics[width = .45\textwidth]{initial_net.pdf}
+	\includegraphics[width = .45\textwidth]{filtered_net.pdf}
 \end{figure}
-In order to account for the sparsity of our network, we consider a subnetwork which only contains pairs of characters with at least 100 interactions. We chose a cutoff of 100 interactions because we want to focus our analysis on only the main characters. Looking at the distribution of the weighted degree, we see that $77.6\%$ of the characters had fewer than 100 interactions. Therefore, it makes sense to use this cutoff to limit our analysis to only the main characters. By doing so, our new network $G'$ contains $N_V(G') = 24$ nodes and $N_E(G') = 102$ edges. Here, we see that the network now contains $38.2\%$ of 276 possible edges, which is a more appropriate level of density for our analysis. Everything that follows is done on this subnetwork $G'$. Figure \textbf{include figure next to other figure} shows this subnetwork $G'$, and indeed, we recognize the main characters remain in our network.
+In order to account for the sparsity of our network, we consider a subnetwork which only contains pairs of characters with at least 100 interactions. We chose a cutoff of 100 interactions because we want to focus our analysis on only the main characters. Looking at the distribution of the weighted degree, we see that $77.6\%$ of the characters had fewer than 100 interactions. Therefore, it makes sense to use this cutoff to limit our analysis to only the main characters. By doing so, our new network $G'$ contains $N_V(G') = 24$ nodes and $N_E(G') = 102$ edges. Here, we see that the network now contains $38.2\%$ of 276 possible edges, which is a more appropriate level of density for our analysis. Everything that follows is done on this subnetwork $G'$. Figure \ref{filtered_net} shows this subnetwork $G'$, and indeed, we recognize the main characters remain in our network.
 
 \section{Models} \label{Models}
 
 
 \subsection{Model Formulation}\label{Model Formulation}
 
-A modern and popular class of network models is the \textit{Latent Network Model}. This model, first introduced by \cite{Hoff2002}, associates each vertex $v\in V$ with a latent variable $Z_v\in \mathcal{V}$. Using these variables, the probability of an $E_{ij}$ being in the network is given by $p_{ij} = \kappa(Z_i, Z_j)$ where $\kappa:\mathcal{V}\times\mathcal{V}\to[0,1]$. Following this work, the authors extend these models to the mixed-model, regression framework where nodal attribute vectors $x_V$ are used in modeling the probability of an edge presense (\cite{KRIVITSKY2009204}, \cite{doi:10.1198/016214502388618906}). For simplicity we do not consider nodal attributes in this work and instead focus our inference on the latent variables associated with each network. Formally, we model the presence of an edge given our latent variables as
+A modern and popular class of network models is the \textit{Latent Network Model}. This model, first introduced by \cite{Hoff2002}, associates each vertex $v\in V$ with a latent variable $Z_v\in \mathcal{V}$. Using these variables, the probability of an $E_{ij}$ being in the network is given by $p_{ij} = \kappa(Z_i, Z_j)$ where $\kappa:\mathcal{V}\times\mathcal{V}\to[0,1]$. Following this work, the authors extend these models to the mixed-model, regression framework where nodal attribute vectors $x_V$ are used in modeling the probability of an edge presense ( \cite{KRIVITSKY2009204}). For simplicity we do not consider nodal attributes in this work and instead focus our inference on the latent variables associated with each network. Formally, we model the presence of an edge given our latent variables as
 \[\text{logit} \ \mathbb{P}(Y_{ij} = 1|Z) = ||Z_i - Z_j|| + \epsilon_{ij}\]
 where
 \[Z_i \overset{ind}{\sim}\sum_{k=1}^G \lambda_k\text{MVN}_d(\mu_k,\sigma_k^2I_d)\]
@@ -369,21 +371,36 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 \end{algorithm*}
 
 \section{Results} \label{Results}
-\begin{enumerate}
-    \item Analysis
-    \item Results
-\end{enumerate}
 
 \subsection{EM}
-We see that using the EM algorithm for the unweighted model is a good initial attempt in modeling the interactions between characters. From the algorithm, we obtained estimates of probabilities of edges and latent distances between characters, and using these values, we were able to identify some closely related characters. Figure \ref{heatmap_unweighted} shows heat maps that depicts the modeled relationships for pairs of characters. The first heat map is constructed using the latent distances and the darker the color, the closer the characters are. The second heat map is constructed using the probabilities of edges between characters, and again, the darker the color, the higher the probability of an edge between the characters. From these heat maps, we do see that some close relationships, like Bran and Hodor, are picked up in both cases. However, it is important to note that in this unweighted model, there is a one-to-one relationship between the latent distances and the presence of an edge and so the EM algorithm only provides estimates of probabilities and distances for when there is an edge and when there isn't an edge between the characters. Thus, we see that these results can be improved.
+We see that using the EM algorithm for the unweighted model is a good initial attempt in modeling the interactions between characters. From the algorithm, we obtained estimates of probabilities of edges and latent distances between characters, and using these values, we were able to identify some closely related characters. Figure \ref{heatmap_unweighted} shows heat maps that depicts the modeled relationships for pairs of characters. 
 
 \begin{center}\label{heatmap_unweighted}
-%\includegraphics{heatmap_dist_unweighted.pdf}
-%\includegraphics{heatmap_p_unweighted.pdf}
+\includegraphics[width = .4\textwidth]{heatmap_dist_unweighted.pdf}
+\includegraphics[width = .4\textwidth]{heatmap_p_unweighted.pdf}
 \end{center}
 
+The first heat map is constructed using the latent distances and the darker the color, the closer the characters are. The second heat map is constructed using the probabilities of edges between characters, and again, the darker the color, the higher the probability of an edge between the characters. From these heat maps, we do see that some close relationships, like Bran and Hodor, are picked up in both cases. However, it is important to note that in this unweighted model, there is a one-to-one relationship between the latent distances and the presence of an edge and so the EM algorithm only provides estimates of probabilities and distances for when there is an edge and when there isn't an edge between the characters. Thus, we see that these results can be improved.
 
-weighted: 3 heat maps, kernel density plot, cluster using distance matrix, network colored by clusters
+\begin{enumerate}
+	\item Need to incorperate edges weights for better performance
+	\item Heatmaps showing better fit that the unweighted model
+\end{enumerate}
+
+\begin{center}\label{heatmap_weighted}
+\includegraphics[width = .4\textwidth]{heatmap_dist_weighted.pdf}
+\includegraphics[width = .4\textwidth]{heatmap_p_weighted.pdf}
+\end{center}
+
+\begin{enumerate}
+	\item We see that the density of the distances show bimodal behavior
+	\item Spectral clustering detects nontrivial clusters in the network
+\end{enumerate}
+
+\begin{center}\label{weighted_clustering}
+\includegraphics[width = .4\textwidth]{density_dist_weighted.pdf}
+\includegraphics[width = .4\textwidth]{graph_p_clust_weighted.pdf}
+\end{center}
 
 \subsection{MCMC}
 
