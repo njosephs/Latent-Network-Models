@@ -8,6 +8,9 @@
 \usepackage[backend=bibtex, style=authoryear]{biblatex}
 \usepackage{listings}
 
+\usepackage{caption}
+\captionsetup[table]{labelsep=space}
+
 \usepackage[usenames,dvipsnames]{color}    
 
 \lstset{ 
@@ -58,7 +61,7 @@ After discovering a dataset on the exchanges between the characters from the thi
 Due to its global fame, \textit{Game of Thrones} has been studied in many different contexts, especially in network analysis. Therefore, there are many readily available datasets. In our project, we use the dataset from \cite{beveridge2016network}, which contains information about characters' interactions in the third book of the series. In this case, an \textit{interaction} occurs if the characters' names appear within fifteen words of one another. This could mean that the characters interacted with each other, conversed with each other, or were generally mentioned together by another means. There is also a column that contains the number of times each pair interacts with one another. Using this dataset, we constructed a weighted network using the number of interactions as weights. Here, the nodes represent the characters and the edges represent the interactions. We use an adjacency matrix, $A$, to represent the network, where the $a_{i,j}$ element represents the number of times the characters interacted with each other. Note that this means if $a_{i.j} = 0$, there are no recorded interactions between character $i$ and $j$ based on how an \textit{interaction} is defined. Although the original dataset is intended as a directed network, we treat it as an undirected network in order to simplify our models.
 
 After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes and $N_E(G) = 352$ edges which means it is quite sparse since it only contains approximately $6.20\%$ of $\binom{N_V(G)}{2} = 5,671$ possible edges. Figure \ref{filtered_net} shows the network described. 
-\begin{figure}[h]\label{filtered_net}
+\begin{figure}[h]
 	\centering
 	\vspace*{-3cm}
 	\hspace*{-4cm}
@@ -66,6 +69,8 @@ After transforming the dataset, our network $G$ contains $N_V(G) = 107$ nodes an
 	\includegraphics[width = .5\textwidth, height = 5in]{filtered_net.pdf}
 	\hspace*{-4cm}
 	\vspace*{-2cm}
+  \caption{}
+  \label{filtered_net}
 \end{figure}
 In order to account for the sparsity of our network, we consider a subnetwork which only contains pairs of characters with at least 100 interactions. We chose a cutoff of 100 interactions because we want to focus our analysis on only the main characters. Looking at the distribution of the weighted degree, we see that $77.6\%$ of the characters had fewer than 100 interactions. Therefore, it makes sense to use this cutoff to limit our analysis to only the main characters. By doing so, our new network $G'$ contains $N_V(G') = 24$ nodes and $N_E(G') = 102$ edges. Here, we see that the network now contains $38.2\%$ of 276 possible edges, which is a more appropriate level of density for our analysis. Everything that follows is done on this subnetwork $G'$. Figure \ref{filtered_net} shows this subnetwork $G'$, and indeed, we recognize the main characters remain in our network.
 
@@ -409,28 +414,37 @@ R(Z^*, Z^{(t)}) &= \frac{f_{Z | \theta, Y}(Z^* | \theta^{(t)}, Y)q(Z^{(t)} | \th
 \subsection{EM}
 We see that using the EM algorithm for the unweighted model is a good initial attempt in modeling the interactions between characters. From the algorithm, we obtained estimates of probabilities of edges and latent distances between characters, and using these values, we were able to identify some closely related characters. Figure \ref{heatmap_unweighted} shows heat maps that depicts the modeled relationships for pairs of characters. 
 
-\begin{center}\label{heatmap_unweighted}
+\begin{figure}[h!]
+\centering
 \includegraphics[width = .4\textwidth]{heatmap_dist_unweighted.pdf}
 \includegraphics[width = .4\textwidth]{heatmap_p_unweighted.pdf}
-\end{center}
+\caption{}
+\label{heatmap_unweighted}
+\end{figure}
 
 The first heat map is constructed using the latent distances and the darker the color, the closer the characters are. The second heat map is constructed using the probabilities of edges between characters, and again, the darker the color, the higher the probability of an edge between the characters. From these heat maps, we do see that some close relationships, like Bran and Hodor, are picked up in both cases. However, it is important to note that in this unweighted model, there is a one-to-one relationship between the latent distances and the presence of an edge and so the EM algorithm only provides estimates of probabilities and distances for when there is an edge and when there isn't an edge between the characters. Thus, we see that these results can be improved.
 
 To this end, we looked to improve this model with the inclusion of the edge weights into our modeling procedure. Following a quite similar approach to that of the unweighted EM algorithm, we use conjugate family relations and Network-Raphson to fit a model that assumes the edge weights follow a Poisson distribution with a parameter we interpret as a function of the distance in the latent space. The results for this analysis follow.
-\begin{center}\label{heatmap_weighted}
+\begin{figure}[h!]
+\centering
 \includegraphics[width = .4\textwidth]{heatmap_dist_weighted.pdf}
 \includegraphics[width = .4\textwidth]{density_dist_weighted.pdf}
-\end{center}
+\caption{}
+\label{heatmap_weighted}
+\end{figure}
 The heatmap in the leftmost panel of Figure \ref{heatmap_weighted} is that of the distances between nodes in the network. Lighter squares suggest the vertices are further away while the darker squares represent the vertices are closer. While it appears that this model again only fits a binary relation to the set of distances, we actually see that for those vertices that are ``close'' that this is not the case. Upon investigation of these values, we see that for vertices that do not share an edge, the distance was fit to be near $7$. In essence, this value represents a ``maximal'' distance between vertices. However, for vertices that are not this maximal distance apart, we see that the model is fitting different distances among the vertices. This is evident by the kernel density estimate in the rightmost panel of this figure. Here we see that for distances that are not maximal, the distances between vetices fall in $[0,.25]$ and perhaps come from a smooth bimodal distribution.
 
 
 In addition to these distances, we provide a similar heatmap in Figure \ref{weighted_clustering} that plots the estimates mean of the Poisson random variable associated with the edge connecting the characters. Darker squares suggest that the number of interactions between the characters is higher and lighter squares represent these characters have less relation. This plot makes clear that this weighted-EM algorithm does appear to detect the number of edges in the network. 
 
 
-\begin{center}\label{weighted_clustering}
+\begin{figure}[h!]
+\centering
 \includegraphics[width = .4\textwidth]{heatmap_p_weighted.pdf}
 \includegraphics[width = .4\textwidth]{graph_p_clust_weighted.pdf}
-\end{center}
+\caption{}
+\label{weighted_clustering}
+\end{figure}
 
 As it appears that this model varies more smoothly over the network and accurately reflects the features of the network, we use these estimates for inference tasks. Regarding the estimates provided by the weighted EM algorithm, $\widehat{\Lambda} = [\hat{\lambda}_{ij}]$, as a smoothed, weighted adjacency matrix, we complete spectral clustering as suggested by \cite{Ng:2001:SCA:2980539.2980649}. The results of this cluster analysis can be found in the rightmost panel of Figure \ref{weighted_clustering}. 
 
@@ -444,10 +458,13 @@ We applied our MCMC algorithm to the model given in Section \ref{MCMC} using $ns
 
 We plot the results of our latent variables $Z_i$, as well as the network labeled with the mode of the group assignments in Figure \ref{MCMC_figs}. The means $\mu_k$ for $k \in \{1, 2, 3\}$ are also included in the latent variable embedding plot on th left. Here, we see that the mode does not necessarily correspond to the closest distribution. Nevertheless, we see the group assignments in the network on the right. Six of the characters in green are from the Stark family, while the other two, Samwell and Meera, have close relationships with members of the Stark family. The only Stark not colored green is Jon [Snow], who we later discover is actually not the son of Eddard (Ned) Stark. It is interesting that our method kept him out of the Stark cluster, though that may also be due to his geographical separation from the rest of the family.
 
-\begin{center}\label{MCMC_figs}
+\begin{figure}[h!]
+\centering
 \includegraphics[width = .4\textwidth]{{Latent_Embedding_1.0}.pdf}
 \includegraphics[width = 0.5\textwidth]{Graph_P_Clustering_MCMC.pdf}
-\end{center}
+\caption{}
+\label{MCMC_figs}
+\end{figure}
 
 
 \section{Conclusion} \label{Conclusion}
