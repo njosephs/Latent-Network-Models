@@ -211,7 +211,7 @@ Using these equations, we can find the updates of $\alpha$ and $\beta$:
 
 Algorithm \ref{EM_alg_unweighted} shows the algorithm for the Unweighted Model. 
 
-\begin{algorithm*}\label{EM_alg_unweighted}
+\begin{algorithm*}
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
     \underline{LNM EM} $(G, tol)$\;
@@ -228,6 +228,7 @@ Algorithm \ref{EM_alg_unweighted} shows the algorithm for the Unweighted Model.
      }
      \Return $\alpha^*$, $\beta^*$, $\hat{p} =  e^{\pi^*}$, $\hat{d} = logit^{-1}(1 - \frac{e^{\pi^*}}{2})$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
     \caption{EM for simplified latent network unweighted model}
+    \label{EM_alg_unweighted}
 \end{algorithm*}
 
 \subsubsection{Weighted Model}
@@ -245,19 +246,16 @@ where now, $\lambda_{ij} = \frac{1}{d_{ij}}$ and $d_{ij}$ is defined as above an
 \mathcal{L}(\lambda, \alpha, \beta; Y) &= \prod_{i<j}\frac{\lambda_{ij}^{Y_{ij}}e^{-\lambda_{ij}}}{Y_{ij}!} \frac{\beta^{\alpha}}{\Gamma(\alpha)}\lambda_{ij}^{\alpha - 1}e^{-\beta \lambda_{ij}} \\
 l(\lambda, \alpha, \beta ; Y) &= \sum_{i<j} \log \lambda_{ij}\big(Y_{ij} + \alpha - 1) - \lambda_{ij}(1+ \beta) -\log(Y_{ij}!) + \alpha \log(\beta) - \log \Gamma(\alpha)
 \end{align*}
-
 Since $\lambda_{ij}$ only depend on $Y_{ij}$ from the data and since the Poisson and Gamma are conjugate, we know that 
 \begin{align*}
 \lambda_{ij}|Y_{ij}, \theta &\propto Pois(\lambda_{ij}) \times Gamma(\alpha, \beta ) \\
 	&= Gamma(\alpha + Y_{ij}, \beta + 1) \\
 \end{align*}
-
 Note we suppress our parameters $\theta = \{\alpha, \beta\}$. From here, we define the following quantities:
 \begin{align*}
 \pi_{ij} &\equiv \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta}\big[\lambda_{ij} \big] = \frac{\alpha + Y_{ij}}{1+ \beta} \\
 \eta_{ij} &\equiv \mathbb{E}_{\lambda_{ij}|Y_{ij}, \theta}\big[\log \lambda_{ij} \big] = \log(1 + \beta) + \Psi (\alpha + Y_{ij})
 \end{align*}
-
 and we have
 \begin{align*}
 Q(\theta; \theta^{(t)}) &\equiv \mathbb{E}_{\lambda|Y, \theta^{(t)}}\big[l (\lambda; Y, \theta) \big] \\
@@ -288,7 +286,7 @@ Thus we have
 
 Algorithm \ref{EM_alg_weighted} shows the algorithm for the Weighted Model. 
 
-\begin{algorithm*}\label{EM_alg_weighted}
+\begin{algorithm*}
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
     \underline{LNM EM} $(G, tol)$\;
@@ -304,6 +302,7 @@ Algorithm \ref{EM_alg_weighted} shows the algorithm for the Weighted Model.
      }
      \Return $\alpha^*$, $\beta^*$, $\hat{\lambda} = \pi^*$, $\hat{d} = \frac{1}{\pi^*}$; where $\alpha^*, \beta^*, \pi^*$ are converged values \
     \caption{EM for simplified latent network weighted model}
+    \label{EM_alg_weighted}
 \end{algorithm*}
 
 \subsection{MCMC}\label{MCMC}
